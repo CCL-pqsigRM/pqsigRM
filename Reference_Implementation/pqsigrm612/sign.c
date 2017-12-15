@@ -48,8 +48,8 @@ crypto_sign(unsigned char *sm, unsigned long long *smlen,
 	unsigned long long sign_i;
 
 	unsigned char sign[CODE_N];
-	matrix *synd_mtx= newMatrix(1, CODE_N - CODE_K);
-	matrix *scrambled_synd_mtx = newMatrix(1, CODE_K - CODE_K);
+	matrix *synd_mtx= newMatrix(1, SYNDROMESIZEBYTES*8 );
+	matrix *scrambled_synd_mtx = newMatrix(1, SYNDROMESIZEBYTES*8);
 
 	float y[CODE_N];
 	float not_decoded[CODE_N];
@@ -77,7 +77,7 @@ crypto_sign(unsigned char *sm, unsigned long long *smlen,
 		}
 		for (i = 0; i < CODE_N - CODE_K; i++) {
 			not_decoded[lead_diff[i]] = y[lead_diff[i]] 
-				= (getElement(scrambled_synd_mtx, i, 0)==(unsigned char)0)? 1 : -1;
+				= (getElement(scrambled_synd_mtx, 0, i)==(unsigned char)0)? 1 : -1;
 		}
 
 		nearest_vector(y);
@@ -89,7 +89,7 @@ crypto_sign(unsigned char *sm, unsigned long long *smlen,
 		// get e_p' using R
 		unsigned char err;
 		for (i = 0; i < NUMOFPUNCTURE; i++) {
-			err = getElement(scrambled_synd_mtx, (CODE_N -CODE_K - NUMOFPUNCTURE) + i, 0);
+			err = getElement(scrambled_synd_mtx, 0, (CODE_N -CODE_K - NUMOFPUNCTURE) + i);
 			for (j = 0; j < (CODE_N - NUMOFPUNCTURE); j++) {
 				err ^= (getElement(R, i, j) & error[j]);
 			}
