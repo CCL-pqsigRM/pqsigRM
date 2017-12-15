@@ -49,7 +49,7 @@ crypto_sign(unsigned char *sm, unsigned long long *smlen,
 
 	unsigned char sign[CODE_N];
 	matrix *synd_mtx= newMatrix(1, SYNDROMESIZEBYTES*8 );
-	matrix *scrambled_synd_mtx = newMatrix(1, SYNDROMESIZEBYTES*8);
+	matrix *scrambled_synd_mtx = newMatrix(1, CODE_N - CODE_K);
 
 	float y[CODE_N];
 	float not_decoded[CODE_N];
@@ -64,7 +64,7 @@ crypto_sign(unsigned char *sm, unsigned long long *smlen,
 
 	AES_XOF_struct *ctx = (AES_XOF_struct*)malloc(sizeof(AES_XOF_struct));
 	seedexpander_init(ctx, seed, div, SEEDEXPANDER_MAX_LEN);
-	for(int x=0; x<10000; x++){
+	while(1){
 		seedexpander(ctx, (unsigned char*)&sign_i, sizeof(unsigned long long));//random number
 		// Find syndrome
 		syndromeForMsg(scrambled_synd_mtx, Sinv, synd_mtx, m, mlen, sign_i);
@@ -95,13 +95,10 @@ crypto_sign(unsigned char *sm, unsigned long long *smlen,
 			}
 			error[(CODE_N - NUMOFPUNCTURE)+ i] = err;
 		}
-		printf("%d\n", hammingWgt(error, CODE_N)); 
 		// Check Hamming weight of e'
-		/*
 		if(hammingWgt(error, CODE_N) <= WEIGHT_PUB){
 			break;
 		}
-		*/
 	}
 
 	// compute Qinv*e'
