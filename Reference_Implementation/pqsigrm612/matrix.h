@@ -33,6 +33,7 @@ void getLeadingCoeff(matrix* mtx, uint16_t *lead, uint16_t *lead_diff);
 matrix* matrixcpy(matrix* dest, matrix* src);
 
 int product(matrix * mtx1, matrix * mtx2, matrix * prod); 
+void vector_mtx_product(matrix *dest, matrix* m, matrix *vec);
 
 int exportMatrix(unsigned char* dest, matrix* mtx);
 matrix* importMatrix(matrix* dest_mtx, const unsigned char* src);

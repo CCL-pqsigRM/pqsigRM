@@ -10,26 +10,14 @@ void read_lead_diff(uint16_t *lead_diff){
 	fclose(lead_diff_file);
 }
 
-matrix* syndromeForMsg(matrix *Sinv, matrix *syndromeMtx_p_T, const unsigned char *m, 
+matrix* syndromeForMsg(matrix* scrambled_synd_mtx, matrix *Sinv, matrix *synd_mtx, const unsigned char *m, 
 						unsigned long long mlen, unsigned long long sign_i)
 {
-	unsigned char *syndrome = (unsigned char*)malloc(SYNDROMESIZEBYTES);
+	hashMsg(synd_mtx->elem, m, mlen, sign_i);
 
-	hashMsg(syndrome, m, mlen, sign_i);
+	vector_mtx_product(scrambled_synd_mtx, Sinv, synd_mtx);
 
-	matrix *syndromeMtx = newMatrix(1,CODE_N-CODE_K);
-	matrix *syndromeMtx_T = newMatrix(CODE_N-CODE_K, 1);
-
-	importMatrix(syndromeMtx, syndrome);
-	free(syndrome);
-
-	transpose(syndromeMtx_T, syndromeMtx);
-
-	product(Sinv, syndromeMtx_T, syndromeMtx_p_T);
-
-	deleteMatrix(syndromeMtx);
-	deleteMatrix(syndromeMtx_T);
-	return syndromeMtx_p_T;
+	return scrambled_synd_mtx;
 }
 
 int
@@ -60,7 +48,9 @@ crypto_sign(unsigned char *sm, unsigned long long *smlen,
 	unsigned long long sign_i;
 
 	unsigned char sign[CODE_N];
-	matrix *syndromeMtx_p_T = newMatrix(CODE_N - CODE_K, 1);
+	matrix *synd_mtx= newMatrix(1, CODE_N - CODE_K);
+	matrix *scrambled_synd_mtx = newMatrix(1, CODE_K - CODE_K);
+
 	float y[CODE_N];
 	float not_decoded[CODE_N];
 	unsigned char error[CODE_N];
@@ -77,7 +67,7 @@ crypto_sign(unsigned char *sm, unsigned long long *smlen,
 	while(1){
 		seedexpander(ctx, (unsigned char*)&sign_i, sizeof(unsigned long long));//random number
 		// Find syndrome
-		syndromeForMsg(Sinv, syndromeMtx_p_T, m, mlen, sign_i);
+		syndromeForMsg(scrambled_synd_mtx, Sinv, synd_mtx, m, mlen, sign_i);
 
 		// decode and find e
 		// In the recursive decoding procedure,
@@ -86,7 +76,7 @@ crypto_sign(unsigned char *sm, unsigned long long *smlen,
 			not_decoded[i] = y[i] = 1;
 		}
 		for (i = 0; i < CODE_N - CODE_K; i++) {
-			not_decoded[lead_diff[i]] = y[lead_diff[i]] = (getElement(syndromeMtx_p_T, i, 0)==(unsigned char)0)? 1 : -1;
+			not_decoded[lead_diff[i]] = y[lead_diff[i]] = (getElement(synd_mtx, i, 0)==(unsigned char)0)? 1 : -1;
 		}
 
 		nearest_vector(y);
@@ -98,7 +88,7 @@ crypto_sign(unsigned char *sm, unsigned long long *smlen,
 		// get e_p' using R
 		unsigned char err;
 		for (i = 0; i < NUMOFPUNCTURE; i++) {
-			err = getElement(syndromeMtx_p_T, (CODE_N -CODE_K - NUMOFPUNCTURE) + i, 0);
+			err = getElement(synd_mtx, (CODE_N -CODE_K - NUMOFPUNCTURE) + i, 0);
 			for (j = 0; j < (CODE_N - NUMOFPUNCTURE); j++) {
 				err ^= (getElement(R, i, j) & error[j]);
 			}
@@ -139,7 +129,7 @@ crypto_sign(unsigned char *sm, unsigned long long *smlen,
 
 	deleteMatrix(Sinv);
 	deleteMatrix(R);
-	deleteMatrix(syndromeMtx_p_T);
+	deleteMatrix(synd_mtx);
 	free(ctx);
 
 	return 0;	
