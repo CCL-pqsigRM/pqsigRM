@@ -76,7 +76,8 @@ crypto_sign(unsigned char *sm, unsigned long long *smlen,
 			not_decoded[i] = y[i] = 1;
 		}
 		for (i = 0; i < CODE_N - CODE_K; i++) {
-			not_decoded[lead_diff[i]] = y[lead_diff[i]] = (getElement(synd_mtx, i, 0)==(unsigned char)0)? 1 : -1;
+			not_decoded[lead_diff[i]] = y[lead_diff[i]] 
+				= (getElement(scrambled_synd_mtx, i, 0)==(unsigned char)0)? 1 : -1;
 		}
 
 		nearest_vector(y);
@@ -88,7 +89,7 @@ crypto_sign(unsigned char *sm, unsigned long long *smlen,
 		// get e_p' using R
 		unsigned char err;
 		for (i = 0; i < NUMOFPUNCTURE; i++) {
-			err = getElement(synd_mtx, (CODE_N -CODE_K - NUMOFPUNCTURE) + i, 0);
+			err = getElement(scrambled_synd_mtx, (CODE_N -CODE_K - NUMOFPUNCTURE) + i, 0);
 			for (j = 0; j < (CODE_N - NUMOFPUNCTURE); j++) {
 				err ^= (getElement(R, i, j) & error[j]);
 			}
@@ -130,6 +131,7 @@ crypto_sign(unsigned char *sm, unsigned long long *smlen,
 	deleteMatrix(Sinv);
 	deleteMatrix(R);
 	deleteMatrix(synd_mtx);
+	deleteMatrix(scrambled_synd_mtx);
 	free(ctx);
 
 	return 0;	
