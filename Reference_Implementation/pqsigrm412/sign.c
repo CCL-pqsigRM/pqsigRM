@@ -1,6 +1,9 @@
 #include "api.h"
 #include "nearest_vector.h"
 #include "common.h"
+#include <time.h>
+
+time_t ti, to;
 
 #define SEEDEXPANDER_MAX_LEN 0xfffffffe // 2^32-1
 
@@ -76,6 +79,7 @@ crypto_sign(unsigned char *sm, unsigned long long *smlen,
 	seedexpander_init(ctx, seed, div, SEEDEXPANDER_MAX_LEN);
 	while(1){
 		seedexpander(ctx, (unsigned char*)&sign_i, sizeof(unsigned long long));//random number
+		ti = clock();
 		// Find syndrome
 		syndromeForMsg(Sinv, syndromeMtx_p_T, m, mlen, sign_i);
 

@@ -6,11 +6,7 @@ CFILES := $(shell find . -name '*.c' | sed -e 's/\.c/\.o/')
 
 OBJS = ${CFILES}
 
-SIGN_OBJS = ${OBJS} \
-	sign.o \
-	PQCgenKAT_sign.o
-	
-sign: ${SIGN_OBJS}
+sign: ${OBJS}
 	$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $^  $(LIBFLAGS)
 
 %.o : %.c
