@@ -36,16 +36,22 @@ int product(matrix * mtx1, matrix * mtx2, matrix * prod) {
 //assume vector is transposed
 void vector_mtx_product(matrix *dest, matrix* m, matrix *vec){
 	unsigned char bit = 0;
-	for(int i = 0; i < m->rows; i++){
+	unsigned char offset;
+	int row, col;
+	for(row = 0; row < m->rows; row++){
 		bit = 0;
-		for(int j=0; j < m->rwdcnt; j++)
-			bit ^= m->elem[i*m->rwdcnt + j] & vec->elem[j];
+		for(col=0; col < m->rwdcnt - 1; col++)
+			bit ^= m->elem[row*m->rwdcnt + col] & vec->elem[col];
+	
+		offset = 0xff << (ELEMBLOCKSIZE*m->rwdcnt - m->cols);
+		bit ^= (m->elem[row*m->rwdcnt + col] & vec->elem[col])&offset;
+
 		bit ^= (bit >> 4);
 		bit ^= (bit >> 2);
 		bit ^= (bit >> 1);
 		bit &= (unsigned char)1;
 		
-		setElement(dest, 0, i, bit);
+		setElement(dest, 0, row, bit);
 	}
 }
 
