@@ -14,9 +14,8 @@ matrix* syndromeForMsg(matrix* scrambled_synd_mtx, matrix *Sinv, matrix *synd_mt
 						unsigned long long mlen, unsigned long long sign_i)
 {
 	hashMsg(synd_mtx->elem, m, mlen, sign_i);
-
 	vector_mtx_product(scrambled_synd_mtx, Sinv, synd_mtx);
-
+	for(int i =0 ; i<CODE_N - CODE_K; i++) printf("%d", getElement(scrambled_synd_mtx, 0, i)); putchar('\n');
 	return scrambled_synd_mtx;
 }
 
