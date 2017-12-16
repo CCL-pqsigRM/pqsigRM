@@ -1,5 +1,7 @@
 #include "nearest_vector.h"
 
+float *temp;
+
 int* reculsive_decoding(float* y, int r1, int m1, int f, int l) {
 	if (r1 == 0) {
 		//Calculate Euclidean distance
@@ -29,9 +31,9 @@ int* reculsive_decoding(float* y, int r1, int m1, int f, int l) {
 		}
 	}
 	else {
-		float *temp = (float*)malloc(sizeof(float)* ((l - f) / 2));
+		//float *temp = (float*)malloc(sizeof(float)* ((l - f) / 2));
 		for (int i = 0; i < (l - f) / 2; i++) {
-			temp[i] = y[i + (l + f) / 2];
+			temp[f + i] = y[i + (l + f) / 2];
 		}
 
 		for (int i = 0; i < (l - f) / 2; i++) {
@@ -41,7 +43,7 @@ int* reculsive_decoding(float* y, int r1, int m1, int f, int l) {
 		reculsive_decoding(y, r1 - 1, m1 - 1, (l + f) / 2, l);
 
 		for (int i = 0; i < (l - f) / 2; i++) {
-			y[f + i] = (y[f + i] + y[i + (l + f) / 2] * temp[i]) / 2;
+			y[f + i] = (y[f + i] + y[i + (l + f) / 2] * temp[f + i]) / 2;
 		}
 
 		reculsive_decoding(y, r1, m1 - 1, f, (l + f) / 2);
@@ -50,7 +52,6 @@ int* reculsive_decoding(float* y, int r1, int m1, int f, int l) {
 			y[i + (l + f) / 2] = y[i + (l + f) / 2] * y[i + f];
 		}
 
-		free(temp);
 	}
 
 }
@@ -61,5 +62,7 @@ void nearest_vector(float* y){
 	// I. Dumer, “Recursive Decoding and Its Performance for Low-Rate 
 	// Reed-Muller Codes,” IEEE Trans. Inform. Theory, may 2004.
 	// 
+	temp = (float*)malloc(CODE_N * sizeof(float));
 	reculsive_decoding(y, RM_R, RM_M, 0, CODE_N);
+	free(temp);
 }
