@@ -9,7 +9,7 @@
 #define MATRIX_NULL 0 
 #define ELEMBLOCKSIZE 8
 
-#define getElement(A, i, j) 		(!!((A)->elem[(i) * A->rwdcnt + (j) / ELEMBLOCKSIZE] & (0x80 >> (j % ELEMBLOCKSIZE))))
+#define getElement(A, i, j) 		(!!((A)->elem[(i) * A->rwdcnt + (j) / ELEMBLOCKSIZE] & (0x80 >> ((j) % ELEMBLOCKSIZE))))
 #define flipElement(A, i, j) 	((A)->elem[(i) * A->rwdcnt + (j) / ELEMBLOCKSIZE] ^= (0x80 >> ((j) % ELEMBLOCKSIZE)))
 #define setElement(A, i, j, val) 	((getElement(A, i, j) == val)? 0 : flipElement(A, i,j))
 #define initZero(R) 			memset((R)->elem,0,(R)->alloc_size)
