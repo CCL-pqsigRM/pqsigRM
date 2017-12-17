@@ -30,33 +30,7 @@ matrix* get_error_matrix(matrix* error, float *not_decoded, float *y){
 	return error;
 }
 
-matrix *add_syndrome_to_error(matrix *error_p, matrix *scrambled_synd_mtx){
-	//shift error_p elements for easy calculation
-	int shift_amount = 8 - NUMOFPUNCTURE%8;
-	int i;
-	for(i = error_p->rwdcnt - 1; i > 0; i--)
-		error_p->elem[i] = (error_p->elem[i] >> shift_amount)^(error_p->elem[i-1] << (8 - shift_amount));
-	error_p->elem[0] = error_p->elem[0] > shift_amount;
 
-	int synd_offset = (CODE_N - CODE_K - NUMOFPUNCTURE)%8;
-
-	for(i = 0; i<error_p->rwdcnt; i++)
-		error_p->elem[i] ^= scrambled_synd_mtx->elem[synd_offset + i];	
-	
-	return error_p;
-}
-
-matrix* align_error_p(matrix *error, matrix *error_p){
-	int error_offeset = (CODE_N - NUMOFPUNCTURE)%8;
-	int i;
-	for(i = 0 ; i< 8 - error_offeset; i++){
-		setElement(error, 0, CODE_N - NUMOFPUNCTURE + i, getElement(error_p, 0, error_offeset + i));
-	}	
-
-	for(i = 1; i<error_p->rwdcnt; i++){
-		error->elem[(CODE_N - NUMOFPUNCTURE)/8] = error_p->elem[i];
-	}
-}
 int hammingWgt_(matrix* error){
 	int wgt=0;
 	int i=0;
@@ -131,8 +105,6 @@ crypto_sign(unsigned char *sm, unsigned long long *smlen,
 		get_error_matrix(error, not_decoded, y);
 		// get e_p' using R
 		vector_mtx_product(error_p, R, error);
-		//add_syndrome_to_error(error_p, scrambled_synd_mtx);
-		//align_error_p(error, error_p);	
 
 		for (i = 0; i < NUMOFPUNCTURE; i++) {
 			setElement(error, 0, (CODE_N - NUMOFPUNCTURE) + i, 
@@ -153,7 +125,7 @@ crypto_sign(unsigned char *sm, unsigned long long *smlen,
 	// sing is (mlen, M, e, sign_i)
 	// M includes its length, i.e., mlen
 	*(unsigned long long*)sm = mlen;
-	memcpy(sm+sizeof(unsigned long long), m    , mlen);
+	memcpy(sm+sizeof(unsigned long long), m, mlen);
 
 	//export, write sign into bytes
 	unsigned char byte;
