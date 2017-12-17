@@ -23,9 +23,9 @@ matrix* get_error_matrix(matrix* error, float *not_decoded, float *y){
 	for(col = 0; col <CODE_N; col+=8){
 		byte = 0;
 		for(i = 0; i<8; i++){
-			byte ^= (not_decoded[col+i] == y[i]) << (8 - 1 - i);
+			byte ^= (not_decoded[col+i] != y[col+i]) << (8 - 1 - i);
 		}
-		error->elem[col%8] = byte;
+		error->elem[col/8] = byte;
 	}
 	return error;
 }
