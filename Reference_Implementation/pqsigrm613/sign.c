@@ -10,28 +10,34 @@ void read_lead_diff(uint16_t *lead_diff){
 	fclose(lead_diff_file);
 }
 
-matrix* syndromeForMsg(matrix *Sinv, matrix *syndromeMtx_p_T, const unsigned char *m, 
+matrix* syndromeForMsg(matrix* scrambled_synd_mtx, matrix *Sinv, matrix *synd_mtx, const unsigned char *m, 
 						unsigned long long mlen, unsigned long long sign_i)
 {
-	unsigned char *syndrome = (unsigned char*)malloc(SYNDROMESIZEBYTES);
-
-	hashMsg(syndrome, m, mlen, sign_i);
-
-	matrix *syndromeMtx = newMatrix(1,CODE_N-CODE_K);
-	matrix *syndromeMtx_T = newMatrix(CODE_N-CODE_K, 1);
-
-	importMatrix(syndromeMtx, syndrome);
-	free(syndrome);
-
-	transpose(syndromeMtx_T, syndromeMtx);
-
-	product(Sinv, syndromeMtx_T, syndromeMtx_p_T);
-
-	deleteMatrix(syndromeMtx);
-	deleteMatrix(syndromeMtx_T);
-	return syndromeMtx_p_T;
+	hashMsg(synd_mtx->elem, m, mlen, sign_i);
+	vector_mtx_product(scrambled_synd_mtx, Sinv, synd_mtx);
+	return scrambled_synd_mtx;
+}
+matrix* get_error_matrix(matrix* error, float *not_decoded, float *y){
+	int col, i;
+	unsigned char byte;
+	for(col = 0; col <CODE_N; col+=8){
+		byte = 0;
+		for(i = 0; i<8; i++){
+			byte ^= (not_decoded[col+i] != y[col+i]) << (8 - 1 - i);
+		}
+		error->elem[col/8] = byte;
+	}
+	return error;
 }
 
+
+int hammingWgt_(matrix* error){
+	int wgt=0;
+	int i=0;
+	for(i=0; i < error->cols; i++)
+		wgt += getElement(error, 0, i);
+	return wgt;
+}
 int
 crypto_sign(unsigned char *sm, unsigned long long *smlen,
 	const unsigned char *m, unsigned long long mlen,
@@ -60,10 +66,13 @@ crypto_sign(unsigned char *sm, unsigned long long *smlen,
 	unsigned long long sign_i;
 
 	unsigned char sign[CODE_N];
-	matrix *syndromeMtx_p_T = newMatrix(CODE_N - CODE_K, 1);
+	matrix *synd_mtx= newMatrix(1, SYNDROMESIZEBYTES*8 );
+	matrix *scrambled_synd_mtx = newMatrix(1, CODE_N - CODE_K);
+	matrix *error = newMatrix(1, CODE_N);
+	matrix *error_p = newMatrix(1, NUMOFPUNCTURE);
+
 	float y[CODE_N];
 	float not_decoded[CODE_N];
-	unsigned char error[CODE_N];
 
 	unsigned char seed[32];
 	for(i =0; i<32; ++i)
@@ -77,7 +86,7 @@ crypto_sign(unsigned char *sm, unsigned long long *smlen,
 	while(1){
 		seedexpander(ctx, (unsigned char*)&sign_i, sizeof(unsigned long long));//random number
 		// Find syndrome
-		syndromeForMsg(Sinv, syndromeMtx_p_T, m, mlen, sign_i);
+		syndromeForMsg(scrambled_synd_mtx, Sinv, synd_mtx, m, mlen, sign_i);
 
 		// decode and find e
 		// In the recursive decoding procedure,
@@ -86,41 +95,37 @@ crypto_sign(unsigned char *sm, unsigned long long *smlen,
 			not_decoded[i] = y[i] = 1;
 		}
 		for (i = 0; i < CODE_N - CODE_K; i++) {
-			not_decoded[lead_diff[i]] = y[lead_diff[i]] = (getElement(syndromeMtx_p_T, i, 0)==(unsigned char)0)? 1 : -1;
+			not_decoded[lead_diff[i]] = y[lead_diff[i]] 
+				= (getElement(scrambled_synd_mtx, 0, i)==(unsigned char)0)? 1 : -1;
 		}
 
 		nearest_vector(y);
 
 		// recover error for H_m
-		for (i = 0; i < CODE_N; ++i) 
-			error[i] = (y[i] != not_decoded[i]);
-
+		get_error_matrix(error, not_decoded, y);
 		// get e_p' using R
-		unsigned char err;
-		for (i = 0; i < NUMOFPUNCTURE; i++) {
-			err = getElement(syndromeMtx_p_T, (CODE_N -CODE_K - NUMOFPUNCTURE) + i, 0);
-			for (j = 0; j < (CODE_N - NUMOFPUNCTURE); j++) {
-				err ^= (getElement(R, i, j) & error[j]);
-			}
-			error[(CODE_N - NUMOFPUNCTURE)+ i] = err;
-		}
+		vector_mtx_product(error_p, R, error);
 
+		for (i = 0; i < NUMOFPUNCTURE; i++) {
+			setElement(error, 0, (CODE_N - NUMOFPUNCTURE) + i, 
+					getElement(error_p, 0, i) ^ getElement(scrambled_synd_mtx, 0, (CODE_N - CODE_K - NUMOFPUNCTURE) + i));
+		}
 		// Check Hamming weight of e'
-		if(hammingWgt(error, CODE_N) <= WEIGHT_PUB){
+		if(hammingWgt_(error) <= WEIGHT_PUB){
 			break;
 		}
 	}
 
 	// compute Qinv*e'
 	for(i=0; i<CODE_N; i++){
-		sign[Qinv[i]] = error[i];
+		sign[Qinv[i]] = getElement(error, 0, i);
 	}
 
 	// export message
 	// sing is (mlen, M, e, sign_i)
 	// M includes its length, i.e., mlen
 	*(unsigned long long*)sm = mlen;
-	memcpy(sm+sizeof(unsigned long long), m    , mlen);
+	memcpy(sm+sizeof(unsigned long long), m, mlen);
 
 	//export, write sign into bytes
 	unsigned char byte;
@@ -139,7 +144,8 @@ crypto_sign(unsigned char *sm, unsigned long long *smlen,
 
 	deleteMatrix(Sinv);
 	deleteMatrix(R);
-	deleteMatrix(syndromeMtx_p_T);
+	deleteMatrix(synd_mtx);
+	deleteMatrix(scrambled_synd_mtx);
 	free(ctx);
 
 	return 0;	

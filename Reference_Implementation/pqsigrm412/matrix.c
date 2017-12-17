@@ -33,6 +33,28 @@ int product(matrix * mtx1, matrix * mtx2, matrix * prod) {
 	return 0;
 }
 
+//assume vector is transposed
+void vector_mtx_product(matrix *dest, matrix* m, matrix *vec){
+	unsigned char bit = 0;
+	unsigned char offset;
+	int row, col;
+	for(row = 0; row < m->rows; row++){
+		bit = 0;
+		for(col=0; col < m->rwdcnt - 1; col++)
+			bit ^= m->elem[row*m->rwdcnt + col] & vec->elem[col];
+	
+		offset = 0xff << (ELEMBLOCKSIZE*m->rwdcnt - m->cols);
+		bit ^= (m->elem[row*m->rwdcnt + col] & vec->elem[col])&offset;
+
+		bit ^= (bit >> 4);
+		bit ^= (bit >> 2);
+		bit ^= (bit >> 1);
+		bit &= (unsigned char)1;
+		
+		setElement(dest, 0, row, bit);
+	}
+}
+
 void rowInterchanging(matrix* A, int row_idx1, int row_idx2){
 	int col_idx;
 	unsigned char temp;
