@@ -97,7 +97,7 @@ crypto_sign_keypair(unsigned char *pk, unsigned char *sk){
 	matrix *H_pub = newMatrix(CODE_N - CODE_K, CODE_N);
 	
 
-	uint16_t *H_lead = (uint16_t*)malloc(sizeof(uint16_t)*CODE_N-CODE_K);
+	uint16_t *H_lead = (uint16_t*)malloc(sizeof(uint16_t)*(CODE_N-CODE_K));
 	uint16_t *H_lead_diff = (uint16_t*)malloc(sizeof(uint16_t)*CODE_K);
 
 	// Get parity check matrix of punctured RM code with random insertion,
