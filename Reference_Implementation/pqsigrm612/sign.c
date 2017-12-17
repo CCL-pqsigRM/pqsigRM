@@ -17,7 +17,53 @@ matrix* syndromeForMsg(matrix* scrambled_synd_mtx, matrix *Sinv, matrix *synd_mt
 	vector_mtx_product(scrambled_synd_mtx, Sinv, synd_mtx);
 	return scrambled_synd_mtx;
 }
+matrix* get_error_matrix(matrix* error, float *not_decoded, float *y){
+	int col, i;
+	unsigned char byte;
+	for(col = 0; col <CODE_N; col+=8){
+		byte = 0;
+		for(i = 0; i<8; i++){
+			byte ^= (not_decoded[col+i] == y[i]) << (8 - 1 - i);
+		}
+		error->elem[col%8] = byte;
+	}
+	return error;
+}
 
+matrix *add_syndrome_to_error(matrix *error_p, matrix *scrambled_synd_mtx){
+	//shift error_p elements for easy calculation
+	int shift_amount = 8 - NUMOFPUNCTURE%8;
+	int i;
+	for(i = error_p->rwdcnt - 1; i > 0; i--)
+		error_p->elem[i] = (error_p->elem[i] >> shift_amount)^(error_p->elem[i-1] << (8 - shift_amount));
+	error_p->elem[0] = error_p->elem[0] > shift_amount;
+
+	int synd_offset = (CODE_N - CODE_K - NUMOFPUNCTURE)%8;
+
+	for(i = 0; i<error_p->rwdcnt; i++)
+		error_p->elem[i] ^= scrambled_synd_mtx->elem[synd_offset + i];	
+	
+	return error_p;
+}
+
+matrix* align_error_p(matrix *error, matrix *error_p){
+	int error_offeset = (CODE_N - NUMOFPUNCTURE)%8;
+	int i;
+	for(i = 0 ; i< 8 - error_offeset; i++){
+		setElement(error, 0, CODE_N - NUMOFPUNCTURE + i, getElement(error_p, 0, error_offeset + i));
+	}	
+
+	for(i = 1; i<error_p->rwdcnt; i++){
+		error->elem[(CODE_N - NUMOFPUNCTURE)/8] = error_p->elem[i];
+	}
+}
+int hammingWgt_(matrix* error){
+	int wgt=0;
+	int i=0;
+	for(i=0; i < error->cols; i++)
+		wgt += getElement(error, 0, i);
+	return wgt;
+}
 int
 crypto_sign(unsigned char *sm, unsigned long long *smlen,
 	const unsigned char *m, unsigned long long mlen,
@@ -48,10 +94,11 @@ crypto_sign(unsigned char *sm, unsigned long long *smlen,
 	unsigned char sign[CODE_N];
 	matrix *synd_mtx= newMatrix(1, SYNDROMESIZEBYTES*8 );
 	matrix *scrambled_synd_mtx = newMatrix(1, CODE_N - CODE_K);
+	matrix *error = newMatrix(1, CODE_N);
+	matrix *error_p = newMatrix(1, NUMOFPUNCTURE);
 
 	float y[CODE_N];
 	float not_decoded[CODE_N];
-	unsigned char error[CODE_N];
 
 	unsigned char seed[32];
 	for(i =0; i<32; ++i)
@@ -81,27 +128,25 @@ crypto_sign(unsigned char *sm, unsigned long long *smlen,
 		nearest_vector(y);
 
 		// recover error for H_m
-		for (i = 0; i < CODE_N; ++i) 
-			error[i] = (y[i] != not_decoded[i]);
-
+		get_error_matrix(error, not_decoded, y);
 		// get e_p' using R
-		unsigned char err;
+		vector_mtx_product(error_p, R, error);
+		//add_syndrome_to_error(error_p, scrambled_synd_mtx);
+		//align_error_p(error, error_p);	
+
 		for (i = 0; i < NUMOFPUNCTURE; i++) {
-			err = getElement(scrambled_synd_mtx, 0, (CODE_N -CODE_K - NUMOFPUNCTURE) + i);
-			for (j = 0; j < (CODE_N - NUMOFPUNCTURE); j++) {
-				err ^= (getElement(R, i, j) & error[j]);
-			}
-			error[(CODE_N - NUMOFPUNCTURE)+ i] = err;
+			setElement(error, 0, (CODE_N - NUMOFPUNCTURE) + i, 
+					getElement(error_p, 0, i) ^ getElement(scrambled_synd_mtx, 0, (CODE_N - CODE_K - NUMOFPUNCTURE) + i));
 		}
 		// Check Hamming weight of e'
-		if(hammingWgt(error, CODE_N) <= WEIGHT_PUB){
+		if(hammingWgt_(error) <= WEIGHT_PUB){
 			break;
 		}
 	}
 
 	// compute Qinv*e'
 	for(i=0; i<CODE_N; i++){
-		sign[Qinv[i]] = error[i];
+		sign[Qinv[i]] = getElement(error, 0, i);
 	}
 
 	// export message
