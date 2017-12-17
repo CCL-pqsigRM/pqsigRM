@@ -102,7 +102,6 @@ crypto_sign_keypair(unsigned char *pk, unsigned char *sk){
 
 	// Get parity check matrix of punctured RM code with random insertion,
 	readParityCheck(H);
-
 	// get random matrix R
 	generateRandomInsertionMtx(R);
 
