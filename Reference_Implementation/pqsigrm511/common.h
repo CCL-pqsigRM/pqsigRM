@@ -13,6 +13,6 @@
 unsigned char* hashMsg(unsigned char *s, const unsigned char *m, 
 	unsigned long long mlen, unsigned long long i);
 
-unsigned int hammingWgt(unsigned char* e, size_t elen);
+int hammingWgt(matrix* e);
 
 #endif 

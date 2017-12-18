@@ -16,10 +16,10 @@ unsigned char* hashMsg(unsigned char *s, const unsigned char *m,
 	return s;
 }
 
-unsigned int hammingWgt(unsigned char* e, size_t elen){
-	unsigned int w=0;
-	int i;
-	for(i=0; i<elen; ++i)
-		w+=e[i];
-	return w;
+int hammingWgt(matrix* error){
+	int wgt=0;
+	int i=0;
+	for(i=0; i < error->cols; i++)
+		wgt += getElement(error, 0, i);
+	return wgt;
 }

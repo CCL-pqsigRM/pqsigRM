@@ -30,14 +30,6 @@ matrix* get_error_matrix(matrix* error, float *not_decoded, float *y){
 	return error;
 }
 
-
-int hammingWgt_(matrix* error){
-	int wgt=0;
-	int i=0;
-	for(i=0; i < error->cols; i++)
-		wgt += getElement(error, 0, i);
-	return wgt;
-}
 int
 crypto_sign(unsigned char *sm, unsigned long long *smlen,
 	const unsigned char *m, unsigned long long mlen,
@@ -111,7 +103,7 @@ crypto_sign(unsigned char *sm, unsigned long long *smlen,
 					getElement(error_p, 0, i) ^ getElement(scrambled_synd_mtx, 0, (CODE_N - CODE_K - NUMOFPUNCTURE) + i));
 		}
 		// Check Hamming weight of e'
-		if(hammingWgt_(error) <= WEIGHT_PUB){
+		if(hammingWgt(error) <= WEIGHT_PUB){
 			break;
 		}
 	}
