@@ -148,7 +148,6 @@ void getLeadingCoeff(matrix* mtx, uint16_t *lead, uint16_t *lead_diff){
 	int row=0, col=0;
 	int lead_idx=0, diff_idx=0;
 	while((col < mtx->cols) && (row < mtx->rows) && (lead_idx < mtx->rows) && (diff_idx < (mtx->cols - mtx->rows))){
-		//printf("%d %d %d\n", row, col, getElement(mtx, row, col));
 		if(getElement(mtx, row, col) == 1){
 			lead[lead_idx++] = col;
 			row++;
