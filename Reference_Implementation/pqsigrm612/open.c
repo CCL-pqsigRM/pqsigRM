@@ -67,7 +67,7 @@ crypto_sign_open(unsigned char *m, unsigned long long *mlen,
 	importMatrix(H_info, pk);
 	build_public_mtx(H_pub, H_info, H_lead);
 
-	vector_mtx_product(H_pub, errorMtx, syndrome_by_e);
+	vector_mtx_product(syndrome_by_e, H_pub, errorMtx);
 
 	for(i=0; i<CODE_N-CODE_K; ++i)
 		if(getElement(syndrome_by_hash, 0, i) != getElement(syndrome_by_e, 0, i))
