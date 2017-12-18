@@ -9,7 +9,7 @@
 #define MATRIX_NULL 0 
 #define ELEMBLOCKSIZE 8
 
-#define getElement(A, i, j) 		(!!((A)->elem[(i) * A->rwdcnt + (j) / ELEMBLOCKSIZE] & (0x80 >> (j % ELEMBLOCKSIZE))))
+#define getElement(A, i, j) 		(!!((A)->elem[(i) * A->rwdcnt + (j) / ELEMBLOCKSIZE] & (0x80 >> ((j) % ELEMBLOCKSIZE))))
 #define flipElement(A, i, j) 	((A)->elem[(i) * A->rwdcnt + (j) / ELEMBLOCKSIZE] ^= (0x80 >> ((j) % ELEMBLOCKSIZE)))
 #define setElement(A, i, j, val) 	((getElement(A, i, j) == val)? 0 : flipElement(A, i,j))
 #define initZero(R) 			memset((R)->elem,0,(R)->alloc_size)
@@ -33,6 +33,7 @@ void getLeadingCoeff(matrix* mtx, uint16_t *lead, uint16_t *lead_diff);
 matrix* matrixcpy(matrix* dest, matrix* src);
 
 int product(matrix * mtx1, matrix * mtx2, matrix * prod); 
+void vector_mtx_product(matrix *dest, matrix* m, matrix *vec);
 
 int exportMatrix(unsigned char* dest, matrix* mtx);
 matrix* importMatrix(matrix* dest_mtx, const unsigned char* src);
