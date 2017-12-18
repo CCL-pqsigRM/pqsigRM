@@ -34,64 +34,52 @@ crypto_sign_open(unsigned char *m, unsigned long long *mlen,
                  const unsigned char *sm, unsigned long long smlen,
                  const unsigned char *pk){
 	matrix *errorMtx = newMatrix(1, CODE_N);
-	matrix *errorMtx_T = newMatrix(CODE_N, 1);
+
 	matrix *H_pub = newMatrix(CODE_N-CODE_K, CODE_N);
-	matrix *syndrome_by_hash = newMatrix(1, CODE_N-CODE_K);
-	matrix *syndrome_by_e = newMatrix(CODE_N-CODE_K, 1);
 	matrix *H_info = newMatrix(CODE_N-CODE_K, CODE_K);
-	uint16_t *H_lead;
+	uint16_t *H_lead= (uint16_t*)(pk+PUBLIC_H_INFO_BYTES);
+
+	matrix *syndrome_by_hash = newMatrix(1, CODE_N - CODE_K);
+	matrix *syndrome_by_e	 = newMatrix(1, CODE_N - CODE_K);
+
 
 	unsigned long long sign_i;
 	unsigned long long mlen_rx;
 	unsigned char* m_rx;
 	
+	int i;
+
 	memcpy(&mlen_rx, sm, sizeof(unsigned long long));
-	m_rx 	= (unsigned char*)malloc(mlen_rx);
-	memcpy(m_rx    , sm + sizeof(unsigned long long), mlen_rx);
+	m_rx = (unsigned char*)malloc(mlen_rx);
+	memcpy(m_rx, sm + sizeof(unsigned long long), mlen_rx);
 
 	import_signed_msg(errorMtx, &sign_i, sm + sizeof(unsigned long long) + mlen_rx);
-	
-	size_t i;
-	unsigned int w=0;
-	
-	for(i=0; i<CODE_N; ++i){
-		w += getElement(errorMtx, 0, i);
-	}
 
-	if(w > WEIGHT_PUB) {
+	if(hammingWgt(errorMtx) > WEIGHT_PUB) {
 		return VERIF_REJECT;
 	}
 
-	unsigned char syndrome[SYNDROMESIZEBYTES];
-	hashMsg(syndrome, m_rx, mlen_rx, sign_i);
+	hashMsg(syndrome_by_hash->elem, m_rx, mlen_rx, sign_i);
 	
 	//import public key
-	
 	importMatrix(H_info, pk);
-
-	H_lead = (uint16_t*)(pk+PUBLIC_H_INFO_BYTES);
 	build_public_mtx(H_pub, H_info, H_lead);
 
-	transpose(errorMtx_T, errorMtx);
-	product(H_pub, errorMtx_T, syndrome_by_e);
-	
-	importMatrix(syndrome_by_hash, syndrome);
+	vector_mtx_product(H_pub, errorMtx, syndrome_by_e);
 
 	for(i=0; i<CODE_N-CODE_K; ++i)
-		if(getElement(syndrome_by_hash, 0, i) != getElement(syndrome_by_e, i, 0)){
+		if(getElement(syndrome_by_hash, 0, i) != getElement(syndrome_by_e, 0, i))
 			return VERIF_REJECT;
-		}
 
 	memcpy(m, m_rx, mlen_rx);
 	*mlen = mlen_rx;
 
-
 	deleteMatrix(errorMtx);
-	deleteMatrix(errorMtx_T);
 	deleteMatrix(H_pub);
+	deleteMatrix(H_info);
+
 	deleteMatrix(syndrome_by_hash);
 	deleteMatrix(syndrome_by_e);
-	deleteMatrix(H_info);
 	free(m_rx);
 
 	return 0;
