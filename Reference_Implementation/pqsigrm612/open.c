@@ -59,8 +59,10 @@ crypto_sign_open(unsigned char *m, unsigned long long *mlen,
 		return VERIF_REJECT;
 	}
 
-	hashMsg(syndrome_by_hash->elem, m_rx, mlen_rx, sign_i);
-	
+	unsigned char syndrome[SYNDROMESIZEBYTES]; 
+	hashMsg(syndrome, m_rx, mlen_rx, sign_i);
+	importMatrix(syndrome_by_hash, syndrome);
+
 	//import public key
 	importMatrix(H_info, pk);
 	build_public_mtx(H_pub, H_info, H_lead);
