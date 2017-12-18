@@ -1,4 +1,4 @@
-pqsigRM v1.1
+pqsigRM v1.11
 
 PRINCIPAL SUBMITTER
 - Wijik Lee, Seoul National University
@@ -12,7 +12,7 @@ This reference implementation and optimized implementation are the implementatio
 The source code is tested under intel x64 cpu, ubuntu 16.04
 There are three variants of pqsigRM.
 
-pqsigRM-4-12
+pqsigRM-5-11
 	A digital signature algorithm with 128-bit security (Category 1)
 
 pqsigRM-6-12
@@ -34,13 +34,13 @@ pqsigRM-6-13
 
 # DOCUMENTATION:
 /Reference_Implementation & /Optimized_Implementation
-	/pqsigrm412
+	/pqsigrm511
 		/api.h					key sizes and algorithm name are defined here
 		/keypair.c 				crypto_sign_keypair() is defined here
 		/sign.c 				crypto_sign() is defined here
 		/open.c 				crypto_sign_open() is defined here
 
-		/parm.h 				basic parameters for pqsigRM-4-12
+		/parm.h 				basic parameters for pqsigRM-5-11
 
 		/common.h 				common variables and functions for signing and verifications 
 		/common.c
@@ -104,7 +104,7 @@ pqsigRM-6-13
 		/rng.c
 
 /KAT
-	/pqsigrm412 				Known Answer Test for pqsigRM-4-12
+	/pqsigrm511 				Known Answer Test for pqsigRM-5-11
 	/pqsigrm612 				Known Answer Test for pqsigRM-6-12
 	/pqsigrm613 				Known Answer Test for pqsigRM-6-13
 
