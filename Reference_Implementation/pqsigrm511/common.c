@@ -11,7 +11,7 @@ unsigned char* hashMsg(unsigned char *s, const unsigned char *m,
 	SHA512(m, mlen, s);
 	SHA512(s, HASHSIZEBYTES+sizeof(unsigned long long), s); //h(h(M)|i)
 	
-	SHA512(s, HASHSIZEBYTES+sizeof(unsigned long long), s+HASHSIZEBYTES);//(h(h(M)|i)|i)
+	SHA512(s, HASHSIZEBYTES, s+HASHSIZEBYTES);//(h(h(M)|i)|i)
 	
 	return s;
 }

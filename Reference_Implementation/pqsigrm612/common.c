@@ -8,12 +8,11 @@ unsigned char* hashMsg(unsigned char *s, const unsigned char *m,
 	// syndrome s = h(h(M)|i) | (h(h(M)|i)|i) |...
 	SHA512(m, mlen, s);
 	*(unsigned long long*)(s+HASHSIZEBYTES) = sign_i;// concatenate i i.e. h(h(M)|i)
-	*(unsigned long long*)(s+HASHSIZEBYTES*2) = sign_i;
-	*(unsigned long long*)(s+HASHSIZEBYTES*3) = sign_i;
-	SHA512(s                , HASHSIZEBYTES+sizeof(unsigned long long), s); //h(h(M)|i)
-	SHA512(s                , HASHSIZEBYTES+sizeof(unsigned long long), s+HASHSIZEBYTES);//(h(h(M)|i)|i)
-	SHA512(s+HASHSIZEBYTES  , HASHSIZEBYTES+sizeof(unsigned long long), s+HASHSIZEBYTES*2);
-	SHA512(s+HASHSIZEBYTES*2, HASHSIZEBYTES+sizeof(unsigned long long), s+HASHSIZEBYTES*3);
+	SHA512(s, HASHSIZEBYTES+sizeof(unsigned long long), s); //h(h(M)|i)
+
+	SHA512(s                , HASHSIZEBYTES, s+HASHSIZEBYTES);//(h(h(M)|i)|i)
+	SHA512(s+HASHSIZEBYTES  , HASHSIZEBYTES, s+HASHSIZEBYTES*2);
+	SHA512(s+HASHSIZEBYTES*2, HASHSIZEBYTES, s+HASHSIZEBYTES*3);
 	return s;
 }
 
