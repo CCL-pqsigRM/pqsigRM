@@ -5,3 +5,8 @@ PQCgenKAT_sign.c
 *.out
 *.rsp
 *.req
+*main*
+*.iso
+sign
+*test*
+*.py
