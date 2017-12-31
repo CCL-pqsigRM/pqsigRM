@@ -41,6 +41,8 @@ A digital signature algorithm with 198-bit security (Category 3)
 ## pqsigRM-6-13
 A digital signature algorithm with 256-bit security (Category 5)
 
+* * *
+
 */Reference_Implementation* & */Optimized_Implementation*  
 - */pqsigrm511*  
  - */api.h*					key sizes and algorithm name are defined here  
