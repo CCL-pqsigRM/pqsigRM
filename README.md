@@ -10,16 +10,6 @@ You can find KAT(Known Answer Tests) [here](https://1drv.ms/f/s!AhBZmnuD2ssygtcf
 
 Our website is <https://sites.google.com/view/pqsigrm>
 
-## pqsigRM-5-11
-A digital signature algorithm with 128-bit security (Category 1)
-
-## pqsigRM-6-12
-A digital signature algorithm with 198-bit security (Category 3)
-
-## pqsigRM-6-13
-A digital signature algorithm with 256-bit security (Category 5)
-
-
 # PRINCIPAL SUBMITTER
 - Wijik Lee, Seoul National University
 - Young-Sik Kim, Chosun University
@@ -40,6 +30,17 @@ Put your own main file in directory pqsigrm**
 	$ make
 
 # DOCUMENTATION
+
+
+## pqsigRM-5-11
+A digital signature algorithm with 128-bit security (Category 1)
+
+## pqsigRM-6-12
+A digital signature algorithm with 198-bit security (Category 3)
+
+## pqsigRM-6-13
+A digital signature algorithm with 256-bit security (Category 5)
+
 */Reference_Implementation* & */Optimized_Implementation*  
 - */pqsigrm511*  
  - */api.h*					key sizes and algorithm name are defined here  
