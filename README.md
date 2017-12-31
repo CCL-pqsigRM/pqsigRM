@@ -35,11 +35,11 @@ Put your own main file in directory pqsigrm**
 
 # DOCUMENTATION:
 /Reference_Implementation & /Optimized_Implementation
->/pqsigrm511
->>/api.h					key sizes and algorithm name are defined here
->>>/keypair.c 				crypto_sign_keypair() is defined here
->>>/sign.c 				crypto_sign() is defined here
->>>/open.c 				crypto_sign_open() is defined here
+>*/pqsigrm511*
+>>*/api.h*					key sizes and algorithm name are defined here
+>>>*/keypair.c* 				crypto_sign_keypair() is defined here
+>>>*/sign.c* 				crypto_sign() is defined here
+>>>*/open.c* 				crypto_sign_open() is defined here
 
 >>>/parm.h 				basic parameters for pqsigRM-5-11
 
