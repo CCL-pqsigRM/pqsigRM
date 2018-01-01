@@ -29,6 +29,16 @@ Put your own main file in directory pqsigrm**
 
 	$ make
 
+# SIMULATION RESULTS
+
+The following measurements are CPU cycles for run pqsigRM-4-12, pqsigRM-6-12, pqsigRM-6-13 at Intel(R) Xeon(R) CPU E5-2698 v4 2.20GHz. The measurements are given in Table below.
+
+|              | security | key generation | singing    | verification |
+|--------------|----------|----------------|------------|--------------|
+| pqsigRM-4-12 | 128      | 14639777783    | 3971208456 | 139814898    |
+| pqsigRM-6-12 | 196      | 6395769782     | 3275234719 | 198607502    |
+| pqsigRM-6-13 | 256      | 72162115384    | 1087667252 | 956410761    |
+
 # DOCUMENTATION
 
 
