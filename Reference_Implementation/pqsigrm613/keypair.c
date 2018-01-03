@@ -64,7 +64,9 @@ void generatePermutation(uint16_t* Q, uint16_t *Qinv){
 	uint16_t idx;
 	for (i = 0; i < CODE_N; i++) {
 		idx = randomidxstream[i]%CODE_N;
+		/*
 		swap(Q, i, idx);
+		*/
 	}
 
 	// Set Qinv
@@ -102,7 +104,6 @@ crypto_sign_keypair(unsigned char *pk, unsigned char *sk){
 
 	// Get parity check matrix of punctured RM code with random insertion,
 	readParityCheck(H);
-
 	// get random matrix R
 	generateRandomInsertionMtx(R);
 

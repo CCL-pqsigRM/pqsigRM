@@ -16,7 +16,6 @@ Our website is <https://sites.google.com/view/pqsigrm>
 - Yong-Woo Lee, Seoul National University
 - Jong-Seon No, Seoul National University
 
-
 E-mail address: <jsno@snu.ac.kr>
 
 # SOFTWARE REQUIREMENTS
