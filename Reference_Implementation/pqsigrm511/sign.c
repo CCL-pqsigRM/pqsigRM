@@ -66,12 +66,8 @@ crypto_sign(unsigned char *sm, unsigned long long *smlen,
 	float y[CODE_N];
 	float not_decoded[CODE_N];
 
-	unsigned char seed[32];
-	for(i =0; i<32; ++i)
-		seed[i] = i;
-	unsigned char div[8];
-	for (i = 0; i<8; ++i)
-		div[i] = i;
+	unsigned char seed[32], div[8];
+	randombytes(seed, 32); randombytes(div, 8);	
 
 	AES_XOF_struct *ctx = (AES_XOF_struct*)malloc(sizeof(AES_XOF_struct));
 	seedexpander_init(ctx, seed, div, SEEDEXPANDER_MAX_LEN);
