@@ -10,3 +10,5 @@ PQCgenKAT_sign.c
 sign
 *test*
 *.py
+*.txt
+*old*
