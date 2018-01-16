@@ -64,9 +64,7 @@ void generatePermutation(uint16_t* Q, uint16_t *Qinv){
 	uint16_t idx;
 	for (i = 0; i < CODE_N; i++) {
 		idx = randomidxstream[i]%CODE_N;
-		/*
 		swap(Q, i, idx);
-		*/
 	}
 
 	// Set Qinv
