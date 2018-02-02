@@ -89,23 +89,16 @@ crypto_sign_keypair(unsigned char *pk, unsigned char *sk){
 	matrix *H = newMatrix(CODE_N-CODE_K, CODE_N);
 	matrix *Sinv = newMatrix(CODE_N - CODE_K, CODE_N - CODE_K);
 
-	matrix *R = newMatrix(NUMOFPUNCTURE, CODE_N-NUMOFPUNCTURE);
-
 	uint16_t *Q = (uint16_t*)malloc(CODE_N*sizeof(uint16_t));
 	uint16_t *Qinv = (uint16_t*)malloc(CODE_N*sizeof(uint16_t));
 
 	matrix *H_pub = newMatrix(CODE_N - CODE_K, CODE_N);
-	
 
 	uint16_t *H_lead = (uint16_t*)malloc(sizeof(uint16_t)*(CODE_N-CODE_K));
 	uint16_t *H_lead_diff = (uint16_t*)malloc(sizeof(uint16_t)*CODE_K);
 
 	// Get parity check matrix of punctured RM code with random insertion,
 	readParityCheck(H);
-	// get random matrix R
-	generateRandomInsertionMtx(R);
-
-	getInsertedParityCheckMtx(H, R);
 
 	// get Permutation
 	generatePermutation(Q, Qinv);
