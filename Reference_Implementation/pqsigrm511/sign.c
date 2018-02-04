@@ -4,6 +4,13 @@
 
 #define SEEDEXPANDER_MAX_LEN 0xfffffffe // 2^32-1
 
+void printmtx(matrix *m){
+	for(int row=0; row < m->rows; row++){
+		for(int col=0; col < m->cols; col++)
+			printf("%d", getElement(m, row, col));
+		putchar('\n');
+	}
+}
 void read_lead_diff(uint16_t *lead_diff){
 	FILE *lead_diff_file = fopen("lead_diff.pqsigrm","rb");
 	fread((unsigned char*)lead_diff,1, LEAD_DIFF_FILESIZE, lead_diff_file);
@@ -71,8 +78,8 @@ crypto_sign(unsigned char *sm, unsigned long long *smlen,
 
 	AES_XOF_struct *ctx = (AES_XOF_struct*)malloc(sizeof(AES_XOF_struct));
 	seedexpander_init(ctx, seed, div, SEEDEXPANDER_MAX_LEN);
-
-	while(1){
+	unsigned cnt = 0;
+	while(cnt < 8192){
 		seedexpander(ctx, (unsigned char*)&sign_i, sizeof(unsigned long long));//random number
 		// Find syndrome
 		syndromeForMsg(scrambled_synd_mtx, Sinv, synd_mtx, m, mlen, sign_i);
@@ -101,7 +108,9 @@ crypto_sign(unsigned char *sm, unsigned long long *smlen,
 		}
 		// Check Hamming weight of e'
 		if(hammingWgt(error) <= WEIGHT_PUB){
-			break;
+			cnt++;
+			printf("%u ", cnt);
+			printmtx(error);
 		}
 	}
 

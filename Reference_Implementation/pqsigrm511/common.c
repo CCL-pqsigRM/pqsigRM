@@ -19,7 +19,19 @@ unsigned char* hashMsg(unsigned char *s, const unsigned char *m,
 int hammingWgt(matrix* error){
 	int wgt=0;
 	int i=0;
-	for(i=0; i < error->cols; i++)
-		wgt += getElement(error, 0, i);
+	for(i=0; i < error->alloc_size; i++){
+		if(error->elem[i] == 0) continue;
+
+		else
+			for(int s = 0; s < 8; s++)
+				wgt += 1 & (error->elem[i] >> s);
+
+	}	
 	return wgt;
+}
+
+unsigned randomunsigned(int mod){
+	unsigned char r[4]; 
+	// randombytes(r, 4);
+	return rand()%mod;
 }

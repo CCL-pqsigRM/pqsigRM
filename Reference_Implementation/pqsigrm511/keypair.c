@@ -83,6 +83,11 @@ int permutation(matrix* H, uint16_t* Q, matrix* H_pub){
 
 	return 0;
 }
+unsigned char in(unsigned elem, unsigned *set, int size){
+    for(int i=0; i< size; i++)
+        if(set[i] == elem) return 1;
+    return 0;
+}
 
 int
 crypto_sign_keypair(unsigned char *pk, unsigned char *sk){
@@ -92,6 +97,8 @@ crypto_sign_keypair(unsigned char *pk, unsigned char *sk){
 	uint16_t *Q = (uint16_t*)malloc(CODE_N*sizeof(uint16_t));
 	uint16_t *Qinv = (uint16_t*)malloc(CODE_N*sizeof(uint16_t));
 
+	matrix *R = newMatrix(NUMOFPUNCTURE, CODE_N - NUMOFPUNCTURE);
+
 	matrix *H_pub = newMatrix(CODE_N - CODE_K, CODE_N);
 
 	uint16_t *H_lead = (uint16_t*)malloc(sizeof(uint16_t)*(CODE_N-CODE_K));
@@ -99,6 +106,52 @@ crypto_sign_keypair(unsigned char *pk, unsigned char *sk){
 
 	// Get parity check matrix of punctured RM code with random insertion,
 	readParityCheck(H);
+	// do puncturing
+	getLeadingCoeff(H, H_lead, H_lead_diff);
+	unsigned int punc[NUMOFPUNCTURE];
+	unsigned elem;
+	unsigned i, j, k;
+	for(i=0; i<NUMOFPUNCTURE; i++){
+		do{
+			 elem = randomunsigned(H->rows);
+		}while(in(elem, punc, i));
+		punc[i] = elem;
+		printf("%u ", elem);
+	}	
+	// 	sort punc[]
+	for( i=0 ; i<NUMOFPUNCTURE; i++)
+		for(j=i; j < NUMOFPUNCTURE - i -1; j++)
+			if(punc[i] < punc[i+1]){
+				unsigned temp = punc[i];
+				punc[i] = punc[i+1];
+				punc[i+1] = temp;
+			}
+	// do bit flip
+	unsigned flip;
+	for(i=0; i<NUMOFPUNCTURE; i++){
+		flip = randomunsigned(CODE_K);
+		setElement(H, punc[i], H_lead_diff[flip], !getElement(H, punc[i], H_lead_diff[flip]));
+		printf("%u ", flip);
+	}
+	// build R 
+	unsigned char temp = 0;
+	for(i=0; i< NUMOFPUNCTURE; i++){
+		for(j=0 ; j < CODE_K; j++){
+			setElement(R, i, H_lead_diff[j], getElement(H, punc[i], H_lead_diff[j]));
+		}
+	}
+	// shift unpunctured rows
+	// shift	
+	unsigned pidx;
+	for(pidx = 0; pidx < NUMOFPUNCTURE; pidx++){
+		for(i=punc[pidx]; i < H->rows - 1; i++){
+			for(j =  0; j < CODE_K; j++){
+				setElement(H, i, H_lead_diff[j], getElement(H, i+1, H_lead_diff[j]));
+			}
+		}
+	}
+
+	getInsertedParityCheckMtx(H, R);
 
 	// get Permutation
 	generatePermutation(Q, Qinv);

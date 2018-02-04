@@ -15,4 +15,5 @@ unsigned char* hashMsg(unsigned char *s, const unsigned char *m,
 
 int hammingWgt(matrix* e);
 
+unsigned randomunsigned(int mod);
 #endif 
