@@ -3,8 +3,11 @@
 
 #include <stdlib.h>
 #include <math.h>
-#include "parm.h"
+#include "common.h"
 
-void nearest_vector(float* y);
+// void rm_dec(float* y);
+void init_decoding(int );
+void recursive_decoding(float* y, int r1, int m1, int f, int l); 
+void recursive_decoding_mod(float* y, int r1, int m1, int f, int l, uint16_t *perm); 
 
 #endif

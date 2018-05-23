@@ -1,68 +1,66 @@
 #include "nearest_vector.h"
-
-float *temp;
-
-void reculsive_decoding(float* y, int r1, int m1, int f, int l) {
+#include <stdlib.h>
+#include "rng.h"
+float *temp; 
+void recursive_decoding_mod(float* y, const  int r1, const int m1, const int f, const int l, uint16_t *perm) {
+	int i;
 	if (r1 == 0) {
 		//Calculate Euclidean distance
-		int a1 = 0;
-		int a2 = 0;
-
-		for (int i = f; i < l; i++) {
-			a1 = a1 + pow(y[i] - 1, 2);
-			a2 = a2 + pow(y[i] + 1, 2);
+		int a1 = 0,a2 = 0;
+	
+		for ( i = f; i < l; i++) {
+			// a1 += (y[i] - 1)*(y[i] - 1); a2 += (y[i] + 1)*(y[i] + 1);
+			a1 += pow(y[i] - 1,2); a2 += pow(y[i] + 1,2);
 		}
-		if (a1 <= a2) {
-			for (int i = f; i < l; i++) {
+		if (a1 <= a2) 
+			for ( i = f; i < l; i++) 
 				y[i] = 1;
-			}
-		}
-		else if (a1 > a2) {
-			for (int i = f; i < l; i++) {
+		else
+			for ( i = f; i < l; i++) 
 				y[i] = -1;
-			}
-		}
 		return;
 	}
 	
 	if (r1 == m1) {
-		for (int i = f; i < l; i++) {
-			if (y[i] >= 0) { y[i] = 1; }
-			else if (y[i] < 0) { y[i] = -1; }
+		for ( i = f; i < l; i++) {
+			if (y[i] >= 0)  y[i] = 1;
+			else  y[i] = -1; 
 		}
 		return;
 	}
 	
+	if(f == 1024 && l == 1536) // partial depermutation
+		y_depermute(y, f, l, perm);
 	
-	for (int i = 0; i < (l - f) / 2; i++) {
+	
+	for ( i = 0; i < (l - f) / 2; i++) {
 		temp[f + i] = y[i + (l + f) / 2];
 	}
 
-	for (int i = 0; i < (l - f) / 2; i++) {
+	for ( i = 0; i < (l - f) / 2; i++) {
 		y[i + (l + f) / 2] = y[i + (l + f) / 2] * y[i + f];
 	}
 
-	reculsive_decoding(y, r1 - 1, m1 - 1, (l + f) / 2, l);
+	recursive_decoding_mod(y, r1 - 1, m1 - 1, (l + f) / 2, l, perm);
 
-	for (int i = 0; i < (l - f) / 2; i++) {
+	for ( i = 0; i < (l - f) / 2; i++) {
 		y[f + i] = (y[f + i] + y[i + (l + f) / 2] * temp[f + i]) / 2;
 	}
 
-	reculsive_decoding(y, r1, m1 - 1, f, (l + f) / 2);
+	recursive_decoding_mod(y, r1, m1 - 1, f, (l + f) / 2, perm);
 
-	for (int i = 0; i < (l - f) / 2; i++) {
+	for ( i = 0; i < (l - f) / 2; i++) {
 		y[i + (l + f) / 2] = y[i + (l + f) / 2] * y[i + f];
 	}
-
+	
+	if(f == 1024 && l == 1536) 
+		y_permute(y, f, l, perm);
+	
+	return;
 }
 
-void nearest_vector(float* y){
-	//
-	// For the detailed description, see
-	// I. Dumer, “Recursive Decoding and Its Performance for Low-Rate 
-	// Reed-Muller Codes,” IEEE Trans. Inform. Theory, may 2004.
-	// 
-	temp = (float*)malloc(CODE_N * sizeof(float));
-	reculsive_decoding(y, RM_R, RM_M, 0, CODE_N);
-	free(temp);
+void init_decoding(int n){
+	if(temp == 0) 
+		temp = (float*)malloc(n * sizeof(float));
+
 }

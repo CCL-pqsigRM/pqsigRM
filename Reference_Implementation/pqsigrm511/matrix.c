@@ -14,6 +14,11 @@ matrix* newMatrix (int rows, int cols)
   return A;
 }
 
+void mtxcpy(matrix* dest, const int r1, const int c1,const int r2, const int c2, matrix* src, const int r3, const int c3){
+	for(int i = 0; i < r2 - r1; i++)
+		for(int j = 0; j < c2 - c1; j++)
+			setElement(dest, r1 + i, c1+j, getElement(src, r3 + i, c3 + j));
+}
 void deleteMatrix(matrix* A)
 {
   free(A->elem);
@@ -73,7 +78,7 @@ void rowAddition(matrix* A, int dest_row_idx, int adding_row_idx){
 	}
 }
 
-matrix * reducedEchelon(matrix* A)
+matrix * rref(matrix* A)
 {
 	// Considering column is longer than row
 	int succ_row_idx=0;
@@ -114,6 +119,48 @@ matrix * reducedEchelon(matrix* A)
 	return A;
 }
 
+matrix * rref_prio(matrix* A, int* col_prio, uint16_t *lead)
+{
+	// Considering column is longer than row
+	int succ_row_idx=0;
+	int col_idx, row_idx=0;
+	int i;
+	for (col_idx = 0; col_idx < (A->cols); ++col_idx) {
+		
+		// finding first row s.t. i th elem of the row is 1
+		for(; row_idx < A->rows; ++row_idx)
+			if(getElement(A, row_idx, col_prio[col_idx]) == 1) 
+				break;
+		// When reaches the last row,
+		// increase column index and search again
+		if (row_idx == A->rows){ 
+			row_idx=succ_row_idx;
+			continue;
+		}
+		// if row_idx is not succ_row_idx, 
+		// interchange between:
+		// <succ_row_idx> th row <-> <row_idx> th row
+		if(row_idx != succ_row_idx){
+			rowInterchanging(A, succ_row_idx, row_idx);
+		}
+		
+		// By adding <succ_row_idx> th row in the other rows 
+		// s.t. A(i, <succ_row_idx>) == 1,
+		// making previous columns as element row.
+		for(i=0; i<A->rows; ++i){
+			if(i == succ_row_idx) continue;
+
+			if(getElement(A, i, col_prio[col_idx]) == 1){
+				rowAddition(A, i, succ_row_idx);
+			}
+		}
+		lead[succ_row_idx] = col_prio[col_idx];
+		row_idx = ++succ_row_idx;
+	}
+	//Gaussian elimination is finished. So return A.
+	return A;
+}
+
 matrix* matrixcpy(matrix* dest, matrix* src){
 	if(dest->rows != src->rows || dest->cols!=src->cols) return MATRIX_NULL;
 	
@@ -124,7 +171,7 @@ matrix* matrixcpy(matrix* dest, matrix* src){
 matrix* transpose(matrix *dest, matrix *src){
 	if((dest->rows != src->cols) || (dest->cols != src->rows))
 		return MATRIX_NULL;
-	size_t row, col;
+	int row, col;
 	for(row=0; row < dest->rows; ++row)
 		for(col=0; col < dest->cols; ++col)
 			setElement(dest, row, col, getElement(src, col, row));
@@ -143,6 +190,15 @@ matrix* importMatrix(matrix* dest_mtx, const unsigned char* src){
 	return dest_mtx;
 }
 
+int add(matrix *m1, matrix *m2, matrix *res){
+	if((m1->rows != m2->rows) || (m1->cols != m2->cols))
+		return -1;
+	
+	for(int i =0; i< res->alloc_size; i++)
+		res->elem[i] = (m1->elem[i])^(m2->elem[i]);
+
+	return 0;
+}
 
 void getLeadingCoeff(matrix* mtx, uint16_t *lead, uint16_t *lead_diff){
 	int row=0, col=0;
@@ -160,5 +216,27 @@ void getLeadingCoeff(matrix* mtx, uint16_t *lead, uint16_t *lead_diff){
 
 	while(col < mtx->cols){
 		lead_diff[diff_idx++]=col++;
+	}
+}
+void dual(matrix* G, matrix* H_sys, uint16_t *lead, uint16_t *lead_diff){
+	int row, col, flg = 0; 
+	rref(G);
+	if(lead == 0 || lead_diff == 0){
+		lead = (uint16_t*)malloc(sizeof(uint16_t)*G->rows);
+		lead_diff = (uint16_t*)malloc(sizeof(uint16_t)*(G->cols - G->rows));	
+		flg = 1;
+	}
+	getLeadingCoeff(G, lead, lead_diff);
+	// Fill not-identity part (P')
+	for ( row = 0; row < H_sys->rows; row++) 
+		for ( col = 0; col < G->rows; col++) 
+			setElement(H_sys, row, lead[col], getElement(G, col, lead_diff[row]));
+
+	for ( row = 0; row < H_sys->rows; row++) 
+			setElement(H_sys, row, lead_diff[row], 1);
+	
+	if(flg){
+		free(lead);
+		free(lead_diff);
 	}
 }

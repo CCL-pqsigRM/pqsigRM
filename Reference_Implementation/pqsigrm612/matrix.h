@@ -9,9 +9,9 @@
 #define MATRIX_NULL 0 
 #define ELEMBLOCKSIZE 8
 
-#define getElement(A, i, j) 		(!!((A)->elem[(i) * A->rwdcnt + (j) / ELEMBLOCKSIZE] & (0x80 >> ((j) % ELEMBLOCKSIZE))))
-#define flipElement(A, i, j) 	((A)->elem[(i) * A->rwdcnt + (j) / ELEMBLOCKSIZE] ^= (0x80 >> ((j) % ELEMBLOCKSIZE)))
-#define setElement(A, i, j, val) 	((getElement(A, i, j) == val)? 0 : flipElement(A, i,j))
+#define getElement(A, i, j) 		(!!((A)->elem[(i) * (A)->rwdcnt + (j) / ELEMBLOCKSIZE] & (0x80 >> ((j) % ELEMBLOCKSIZE))))
+#define flipElement(A, i, j) 	((A)->elem[(i) * (A)->rwdcnt + (j) / ELEMBLOCKSIZE] ^= (0x80 >> ((j) % ELEMBLOCKSIZE)))
+#define setElement(A, i, j, val) 	((getElement((A), (i), (j)) == (val))? 0 : flipElement((A), (i),(j)))
 #define initZero(R) 			memset((R)->elem,0,(R)->alloc_size)
 
 typedef struct {
@@ -25,7 +25,7 @@ typedef struct {
 matrix* newMatrix(int rows, int cols) ;
 void deleteMatrix(matrix * mtx) ;
 
-matrix* reducedEchelon(matrix* A);
+matrix* rref(matrix* A);
 matrix* transpose(matrix *dest, matrix *src);
 
 void getLeadingCoeff(matrix* mtx, uint16_t *lead, uint16_t *lead_diff);
@@ -34,8 +34,13 @@ matrix* matrixcpy(matrix* dest, matrix* src);
 
 int product(matrix * mtx1, matrix * mtx2, matrix * prod); 
 void vector_mtx_product(matrix *dest, matrix* m, matrix *vec);
+int add(matrix *m1, matrix *m2, matrix *res);
 
 int exportMatrix(unsigned char* dest, matrix* mtx);
 matrix* importMatrix(matrix* dest_mtx, const unsigned char* src);
 
+void dual(matrix* G, matrix* H_sys, uint16_t *lead, uint16_t *lead_diff);
+matrix * rref_prio(matrix* A, int* col_prio, uint16_t *lead);
+void rowInterchanging(matrix* A, int row_idx1, int row_idx2);
+void mtxcpy(matrix* dest, const int r1, const int c1,const int r2, const int c2, matrix* src, const int r3, const int c3);
 #endif

@@ -11,7 +11,7 @@
 #define CODE_K 1024
 #define CODE_N 2048
 
-#define WEIGHT_PUB 312 
+#define WEIGHT_PUB 313 
 #define HASHSIZEBYTES 64
 
 #define NUMOFPUNCTURE 8

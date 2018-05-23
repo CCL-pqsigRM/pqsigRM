@@ -1,117 +1,91 @@
 #include "api.h"
-#include "nearest_vector.h"
+#include "rm.h"
 #include "common.h"
+#include "nearest_vector.h"
+// #define SEEDEXPANDER_MAX_LEN 0xfffffffe // 2^32-1
 
-#define SEEDEXPANDER_MAX_LEN 0xfffffffe // 2^32-1
-
-void read_lead_diff(uint16_t *lead_diff){
-	FILE *lead_diff_file = fopen("lead_diff.pqsigrm","rb");
-	fread((unsigned char*)lead_diff,1, LEAD_DIFF_FILESIZE, lead_diff_file);
-	fclose(lead_diff_file);
+int wgt(float *yc, float *yr)
+{
+	int i, w=0;
+	for(i=0; i<CODE_N; i++)
+		if(yc[i] != yr[i]) w++;
+	return w;
 }
 
 matrix* syndromeForMsg(matrix* scrambled_synd_mtx, matrix *Sinv, matrix *synd_mtx, const unsigned char *m, 
 						unsigned long long mlen, unsigned long long sign_i)
 {
 	hashMsg(synd_mtx->elem, m, mlen, sign_i);
+
 	vector_mtx_product(scrambled_synd_mtx, Sinv, synd_mtx);
 	return scrambled_synd_mtx;
 }
-matrix* get_error_matrix(matrix* error, float *not_decoded, float *y){
-	int col, i;
-	unsigned char byte;
-	for(col = 0; col <CODE_N; col+=8){
-		byte = 0;
-		for(i = 0; i<8; i++){
-			byte ^= (not_decoded[col+i] != y[col+i]) << (8 - 1 - i);
-		}
-		error->elem[col/8] = byte;
-	}
-	return error;
+
+
+void import_sk(const unsigned char *sk, matrix *Sinv
+		, uint16_t **Q, uint16_t **Qp, uint16_t **s_lead)
+{
+	importMatrix(Sinv, sk);
+	*Q 		= (uint16_t*)(sk+Sinv->alloc_size);
+	*Qp 	= (uint16_t*)(sk+Sinv->alloc_size+sizeof(uint16_t)*CODE_N);
+	*s_lead = (uint16_t*)(sk+Sinv->alloc_size+sizeof(uint16_t)*CODE_N
+							+sizeof(uint16_t)*CODE_N/4);
 }
 
 int
 crypto_sign(unsigned char *sm, unsigned long long *smlen,
 	const unsigned char *m, unsigned long long mlen,
 	const unsigned char *sk){
-	uint16_t lead_diff[CODE_N-CODE_K];
-	read_lead_diff(lead_diff);
 
 	// read secret key(bit stream) into appropriate type.
 	matrix* Sinv = newMatrix(CODE_N-CODE_K, CODE_N-CODE_K);
-	matrix* R = newMatrix(NUMOFPUNCTURE, CODE_N-NUMOFPUNCTURE);
-	uint16_t* Qinv;
-
-	//import secret keys
-	importMatrix(Sinv, sk);
-	importMatrix(R   , sk+SECRET_SINV_BYTES);
-	Qinv = (uint16_t*)(sk+SECRET_SINV_BYTES+SECRET_R_BYTES);
-
-	// Do signing:
-	//		find e' such that wt(e') <= t
-	//		iterate for SIGN_ITER_N times.
-	// Signing time is proportional to Proportional 
-	// To increase security, reduce t and increase N. 
-	// This is security trade-off
-	unsigned int i, j;
+	uint16_t *Q, *Qp, *s_lead;
+	import_sk(sk, Sinv, &Q, &Qp, &s_lead);
+	// Do signing, decode until the a error vector wt <= w is achieved
+	int i, j;
 	
 	unsigned long long sign_i;
 
-	unsigned char sign[CODE_N];
+	// unsigned char sign[CODE_N];
 	matrix *synd_mtx= newMatrix(1, SYNDROMESIZEBYTES*8 );
 	matrix *scrambled_synd_mtx = newMatrix(1, CODE_N - CODE_K);
 	matrix *error = newMatrix(1, CODE_N);
 	matrix *error_p = newMatrix(1, NUMOFPUNCTURE);
 
-	float y[CODE_N];
-	float not_decoded[CODE_N];
-
-	unsigned char seed[32];
-	for(i =0; i<32; ++i)
-		seed[i] = i;
-	unsigned char div[8];
-	for (i = 0; i<8; ++i)
-		div[i] = i;
-
-	AES_XOF_struct *ctx = (AES_XOF_struct*)malloc(sizeof(AES_XOF_struct));
-	seedexpander_init(ctx, seed, div, SEEDEXPANDER_MAX_LEN);
-
+	float *yc = (float*)malloc(sizeof(float)*CODE_N);
+	float *yr = (float*)malloc(sizeof(float)*CODE_N);
+	
+	init_decoding(CODE_N);
 	while(1){
-		seedexpander(ctx, (unsigned char*)&sign_i, sizeof(unsigned long long));//random number
+		//random number
+		randombytes((unsigned char*)&sign_i, sizeof(unsigned long long));
 		// Find syndrome
 		syndromeForMsg(scrambled_synd_mtx, Sinv, synd_mtx, m, mlen, sign_i);
 
 		// decode and find e
 		// In the recursive decoding procedure,
 		// Y is 1 when the received codeword is 0, o.w, -1
-		for(i=0; i<CODE_N; i++){
-			not_decoded[i] = y[i] = 1;
-		}
-		for (i = 0; i < CODE_N - CODE_K; i++) {
-			not_decoded[lead_diff[i]] = y[lead_diff[i]] 
-				= (getElement(scrambled_synd_mtx, 0, i)==(unsigned char)0)? 1 : -1;
-		}
+		for(i=0; i<CODE_N; i++) yr[i] = yc[i] = 1;
+		
+		for (i = 0; i < CODE_N - CODE_K; i++) 
+			if(getElement(scrambled_synd_mtx, 0, i)== 1) 
+				yr[s_lead[i]] = yc[s_lead[i]] = -1;
 
-		nearest_vector(y);
-
-		// recover error for H_m
-		get_error_matrix(error, not_decoded, y);
-		// get e_p' using R
-		vector_mtx_product(error_p, R, error);
-
-		for (i = 0; i < NUMOFPUNCTURE; i++) {
-			setElement(error, 0, (CODE_N - NUMOFPUNCTURE) + i, 
-					getElement(error_p, 0, i) ^ getElement(scrambled_synd_mtx, 0, (CODE_N - CODE_K - NUMOFPUNCTURE) + i));
-		}
+		recursive_decoding_mod(yc, RM_R, RM_M, 0, CODE_N, Qp);
+		// for (int i = 0; i < CODE_N; ++i)
+		// {
+		// 	printf("%f \n", yc[i]);
+		// }
 		// Check Hamming weight of e'
-		if(hammingWgt(error) <= WEIGHT_PUB){
+		if(wgt(yr, yc) <= WEIGHT_PUB){
 			break;
 		}
 	}
-
 	// compute Qinv*e'
+	matrix *sign = newMatrix(1, CODE_N);
+	
 	for(i=0; i<CODE_N; i++){
-		sign[Qinv[i]] = getElement(error, 0, i);
+		setElement(sign, 0, Q[i], (yr[i] != yc[i]));
 	}
 
 	// export message
@@ -120,26 +94,16 @@ crypto_sign(unsigned char *sm, unsigned long long *smlen,
 	*(unsigned long long*)sm = mlen;
 	memcpy(sm+sizeof(unsigned long long), m, mlen);
 
-	//export, write sign into bytes
-	unsigned char byte;
-	for(i=0; 8*i<CODE_N; ++i){
-		byte=0;
-		for(j=0; j<8; ++j)
-			byte ^= (sign[8*i+j] << ((8-1)-j));
-		*(sm + sizeof(unsigned long long) + mlen + i)= byte;
-	}
-	
+	memcpy(sm+sizeof(unsigned long long)+mlen, sign->elem, sign->alloc_size);
 	*(unsigned long long*)(sm + sizeof(unsigned long long) + mlen + ERRORSIZEBYTES) 
 		= sign_i;
 
 	*smlen = sizeof(unsigned long long) + mlen + ERRORSIZEBYTES + sizeof(unsigned long long);
-
-
+	
 	deleteMatrix(Sinv);
-	deleteMatrix(R);
-	deleteMatrix(synd_mtx);
-	deleteMatrix(scrambled_synd_mtx);
-	free(ctx);
-
+	deleteMatrix(synd_mtx);	deleteMatrix(scrambled_synd_mtx);
+	deleteMatrix(error); deleteMatrix(error_p);
+	free(yr); free(yc);
+	// free(ctx);
 	return 0;	
 }
