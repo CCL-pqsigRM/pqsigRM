@@ -28,15 +28,15 @@ Put your own main file in directory pqsigrm**
 
 	$ make
 
-# SIMULATION RESULTS
+# PERFORMANCE ANALYSIS 
 
-The following measurements are CPU cycles for run pqsigRM-4-12, pqsigRM-6-12, pqsigRM-6-13 at Intel(R) Xeon(R) CPU E5-2698 v4 2.20GHz. The measurements are given in Table below.
+The following measurements are CPU cycles for run pqsigRM-4-12, pqsigRM-6-12, pqsigRM-6-13 at Intel(R) Core(R) CPU i7-6700k 4.00GHz. The measurements are given in Table below.
 
 |              | security | key generation | singing    | verification |
 |--------------|----------|----------------|------------|--------------|
-| pqsigRM-4-12 | 128      | 14639777783    | 3971208456 | 139814898    |
-| pqsigRM-6-12 | 196      | 6395769782     | 3275234719 | 198607502    |
-| pqsigRM-6-13 | 256      | 72162115384    | 1087667252 | 956410761    |
+| pqsigRM-4-12 | category1| 1741390245	   | 3066081149 | 33803704 	   |
+| pqsigRM-6-12 | category3| 9677015223     | i408039647 | 144846274    |
+| pqsigRM-6-13 | category5| 76855751128    | 166601581  | 776433235    |
 
 # DOCUMENTATION
 
@@ -67,6 +67,7 @@ A digital signature algorithm with 256-bit security (Category 5)
   - */nearest_vector.h*  
   - */parity_check.pqsigrm*	Information of reduced echelon form of the parity check matrix of RM(5, 11), not key, publicly known value  
   - */lead_diff.pqsigrm* 		difference set of the leading coefficient of the generator matrix of RM(5, 11) in reduced echelon form  
+  - */rm.c, rm.h*			code for RM code generatorm matrix and partiall permutation on it.
   - */rng.h* 					random number generator published by NIST	  
   - */rng.c*  
 - */pqsigrm612*  
@@ -83,6 +84,7 @@ A digital signature algorithm with 256-bit security (Category 5)
   - */nearest_vector.h*  
   - */parity_check.pqsigrm* 	Information of reduced echelon form of the parity check matrix of RM(6,12), not key, publicly known value  
   - */lead_diff.pqsigrm* 		difference set of the leading coefficient of the generator matrix of RM(6,12) in reduced echelon form  
+  - */rm.c, rm.h*			code for RM code generatorm matrix and partiall permutation on it.
   - */rng.h* 					random number generator published by NIST	  
   - */rng.c*  
 - */pqsigrm613*  
@@ -99,6 +101,7 @@ A digital signature algorithm with 256-bit security (Category 5)
   - */nearest_vector.h*  
   - */parity_check.pqsigrm* 	Information of reduced echelon form of the parity check matrix of RM(6,13), not key, publicly known value  
   - */lead_diff.pqsigrm* 		difference set of the leading coefficient of the generator matrix of RM(6,13) in reduced echelon form  
+  - */rm.c, rm.h*			code for RM code generatorm matrix and partiall permutation on it.
   - */rng.h* 					random number generator published by NIST	  
   - */rng.c*  
   
