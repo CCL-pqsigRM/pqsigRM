@@ -1,15 +1,8 @@
 #include "api.h"
 #include "common.h"
 
-void generateRandomInsertionMtx(matrix* R){
-	
-	unsigned char randombytesstream[SECRET_R_BYTES];
-	
-	randombytes(randombytesstream,SECRET_R_BYTES);
-	importMatrix(R, randombytesstream);
-}
 int copy_columns(matrix *dest, matrix *src, uint16_t *lead ){
-	size_t row, col;
+	int row, col;
 	
 	for(row=0; row <dest->rows; ++row)
 		for(col=0; col < dest->cols; ++col)
@@ -29,6 +22,7 @@ void export_sk(unsigned char *sk, matrix *Sinv, uint16_t *Q, uint16_t *Qp, uint1
 	memcpy		(sk+Sinv->alloc_size+sizeof(uint16_t)*CODE_N+sizeof(uint16_t)*CODE_N/4, 
 								   s_lead, sizeof(uint16_t)*(CODE_N-CODE_K));
 }
+
 void export_pk(unsigned char *pk, matrix *H_info, uint16_t *p_lead){
 	exportMatrix(pk 			 , H_info);
 	memcpy		(pk+H_info->alloc_size, 
