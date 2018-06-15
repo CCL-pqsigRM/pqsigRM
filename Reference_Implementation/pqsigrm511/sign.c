@@ -72,14 +72,9 @@ crypto_sign(unsigned char *sm, unsigned long long *smlen,
 				yr[s_lead[i]] = yc[s_lead[i]] = -1;
 
 		recursive_decoding_mod(yc, RM_R, RM_M, 0, CODE_N, Qp);
-		// for (int i = 0; i < CODE_N; ++i)
-		// {
-		// 	printf("%f \n", yc[i]);
-		// }
+		
 		// Check Hamming weight of e'
-		if(wgt(yr, yc) <= WEIGHT_PUB){
-			break;
-		}
+		if(wgt(yr, yc) <= WEIGHT_PUB) break;
 	}
 	// compute Qinv*e'
 	matrix *sign = newMatrix(1, CODE_N);
