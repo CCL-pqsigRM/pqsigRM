@@ -22,7 +22,6 @@ void permutation(uint16_t *Q, int len);
 uint16_t random16(uint16_t n);
 
 void col_permute(matrix* G, const int rf, const int rr, const int cf, const int cr, uint16_t* Q);
-void y_permute(float *y, const int f, const int r, uint16_t *Q);
-void y_depermute(float *y, const int f, const int r, uint16_t *Q);
+
 
 #endif 

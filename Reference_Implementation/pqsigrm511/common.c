@@ -54,22 +54,5 @@ void col_permute(matrix* m, const int rf, const int rr, const int cf, const int 
 	deleteMatrix(mcpy);
 }
 
-void y_permute(float *y, const int f, const int r, uint16_t *Q){
-	int i; 
-	float *ycpy = (float*)malloc(sizeof(float)*(r-f));
-	for (i = 0; i < r - f; ++i)
-		ycpy[i] = y[f + i];
-	for (i = 0; i < r - f; ++i)
-		y[f + i] = ycpy[Q[i]];
-	free(ycpy);
-}
 
-void y_depermute(float *y, const int f, const int r, uint16_t *Q){
-	int i; 
-	float *ycpy = (float*) malloc(sizeof(float)*(r-f)); 
-	for (i = 0; i < r - f; ++i)
-		ycpy[i] = y[f + i];
-	for (i = 0; i < r - f; ++i)
-		y[f + Q[i]] = ycpy[i];
-	free(ycpy);
-}
+
