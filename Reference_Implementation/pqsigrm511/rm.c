@@ -37,22 +37,3 @@ matrix* rm_gen_mod(int r, int m, uint16_t row_f, uint16_t row_r, uint16_t col_f,
 	
 	return gen;
 }
-
-int rm_dec_mod(matrix* r, matrix* cwd, uint16_t* perm){
-	if(cwd == 0 || r == 0) return -1;
-	if(cwd->cols != r->cols) return -1;
-
-	float *y = (float*)malloc(r->cols*sizeof(float));
-
-	for(int c =0; c< r->cols; c++)
-		y[c] = (getElement(r, 0, c) == 0)? 1: -1;
-	init_decoding(r->cols);
-
-	recursive_decoding_mod(y, 5, 11, 0, r->cols, perm);
-	
-	for(int c = 0; c < r->cols; c++)
-		setElement(cwd, 0, c, (y[c] < 0)? 1 : 0);
-
-	free(y);
-	return 0;	
-}
