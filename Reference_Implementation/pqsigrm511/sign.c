@@ -32,6 +32,22 @@ void import_sk(const unsigned char *sk, matrix *Sinv
 							+sizeof(uint16_t)*CODE_N/4);
 }
 
+void y_init(float *yc, float *yr, matrix* syndrome, uint16_t *s_lead){
+		int i;
+		uint16_t idx[2048];
+		for(i =0; i<1024; i++) 
+			if(getElement(syndrome, 0, i)== 1) 
+				idx[s_lead[i]] = 1;
+		for(i=1024; i<2048; i++)
+			idx[s_lead[i]] = 0;
+
+		for(i=0; i<CODE_N; i++) 
+			if(idx[i] == 1)
+				yr[i] = yc[i] = -1;
+			else
+				yr[i] = yc[i] = 1;
+
+}
 int
 crypto_sign(unsigned char *sm, unsigned long long *smlen,
 	const unsigned char *m, unsigned long long mlen,
@@ -65,12 +81,6 @@ crypto_sign(unsigned char *sm, unsigned long long *smlen,
 		// decode and find e
 		// In the recursive decoding procedure,
 		// Y is 1 when the received codeword is 0, o.w, -1
-		for(i=0; i<CODE_N; i++) yr[i] = yc[i] = 1;
-		
-		for (i = 0; i < CODE_N - CODE_K; i++) 
-			if(getElement(scrambled_synd_mtx, 0, i)== 1) 
-				yr[s_lead[i]] = yc[s_lead[i]] = -1;
-
 		recursive_decoding_mod(yc, RM_R, RM_M, 0, CODE_N, Qp);
 		
 		// Check Hamming weight of e'
