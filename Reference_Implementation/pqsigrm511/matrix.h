@@ -30,7 +30,7 @@ void deleteMatrix(matrix * mtx) ;
 
 matrix* rref(matrix* mtx);
 matrix* transpose(matrix *dest, matrix *src);
-int inverse(matrix *mtx, matirx *mtxInv);
+int inverse(matrix *mtx, matrix *mtxInv);
 
 void getPivot(matrix* mtx, uint16_t *lead, uint16_t *lead_diff);
 

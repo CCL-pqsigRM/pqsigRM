@@ -119,7 +119,7 @@ matrix * rref(matrix* A)
 	return A;
 }
 
-int inverse(matrix *mtx, matirx *mtxInv){
+int inverse(matrix *mtx, matrix *mtxInv){
 	if(mtx->rows != mtx->cols) 			return INV_FAIL;
 	if(mtxInv->rows != mtxInv->cols) 	return INV_FAIL;
 	if(mtx->rows != mtxInv->rows) 		return INV_FAIL;
@@ -128,18 +128,39 @@ int inverse(matrix *mtx, matirx *mtxInv){
 	matrixcpy(temp, mtx);
 
 	int r, c;
-	int r0;
-	for (int c = 0; c < mtx->cols; ++c)
+	for(r = 0; r< mtxInv->alloc_size;++r){
+		mtxInv->elem[r] = 0;
+	}
+	for ( r = 0; r <  mtx->rows; ++r)
 	{
+		setElement(mtxInv, r, r, 1);
+	}
 
-		for (int r = c; r < mtx->rows; ++r)
+	for (c = 0; c < mtx->cols; ++c)
+	{
+		if(getElement(temp, c, c) == 0)
 		{
+			for (r = c+1; r < mtx->rows; ++r)
+			{
+				if(getElement(temp, r, c) == 1){
+					rowInterchanging(temp, r, c);
+					rowInterchanging(mtxInv, r, c);
+					break;
+				}
+			}
+			if(r >= mtx->rows) 		return INV_FAIL;
+		}
+		
+
+		for(r = 0; r < mtx->rows; r++){
 			if(getElement(temp, r, c) == 1 && r != c){
-				rowInterchanging(temp, r, c);
-				rowInterchanging(mtxInv, r, c);
+				rowAddition(temp, r, c);
+				rowAddition(mtxInv, r, c);
 			}
 		}
 	}
+	deleteMatrix(temp);
+	return INV_SUCCESS;
 }
 
 matrix * rref_prio(matrix* A, int* col_prio, uint16_t *lead)

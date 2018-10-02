@@ -19,7 +19,7 @@ void export_sk(unsigned char *sk, matrix *Sinv, uint16_t *Q,
 								   s_lead, sizeof(uint16_t)*(CODE_N-CODE_K));
 }
 
-void export_pk(unsigned char *pk, matrix *H_pub,){
+void export_pk(unsigned char *pk, matrix *H_pub){
 	exportMatrix(pk 			 , H_pub);
 }
 
@@ -64,9 +64,7 @@ crypto_sign_keypair(unsigned char *pk, unsigned char *sk){
 
 	col_permute(H_M, 0, CODE_N-CODE_K, 0, CODE_N, Q);
 	
-	matrixcpy(H_pub, H_M); // copy of permuted matrix
-	
-
+	product(S, H_M, H_pub);
 
 	export_sk(sk, Sinv, Q, part_perm1, part_perm2, s_lead);
 	export_pk(pk, H_pub);

@@ -6,33 +6,11 @@ void import_signed_msg(matrix *errorMtx, unsigned long long *sign_i, const unsig
 	*sign_i = *((unsigned long long*)(sm+ERRORSIZEBYTES));
 }
 
-void build_public_mtx(matrix* H_pub, matrix* H_info, uint16_t *p_lead){
-	size_t row, col, lidx = 0, infoidx = 0;
 
-	for( col=0; (col < CODE_N) && (lidx < CODE_N - CODE_K); ++col){
-		while(col < p_lead[lidx]){
-			for(row = 0; row < CODE_N-CODE_K; ++row){
-				setElement(H_pub, row, col, getElement(H_info, row, infoidx));
-			}
-			col ++; infoidx++;
-		}
-		setElement(H_pub, lidx, p_lead[lidx], 1);
-		lidx++;
-
-	}
-
-	while(col < CODE_N){
-			for(row = 0; row < CODE_N-CODE_K; ++row){
-				setElement(H_pub, row, col, getElement(H_info, row, infoidx));
-			}
-			col ++; infoidx++;
-		}
+void import_pk(const unsigned char *pk, matrix *H_pub){
+	memcpy(H_pub->elem, pk, H_pub->alloc_size);
 }
 
-void import_pk(const unsigned char *pk, matrix *H_info, uint16_t **p_lead){
-	memcpy(H_info->elem, pk, H_info->alloc_size);
-	*p_lead = (uint16_t*)(pk +  H_info->alloc_size);
-}
 int
 crypto_sign_open(unsigned char *m, unsigned long long *mlen,
                  const unsigned char *sm, unsigned long long smlen,
@@ -40,8 +18,6 @@ crypto_sign_open(unsigned char *m, unsigned long long *mlen,
 	matrix *errorMtx = newMatrix(1, CODE_N);
 
 	matrix *H_pub = newMatrix(CODE_N-CODE_K, CODE_N);
-	matrix *H_info = newMatrix(CODE_N-CODE_K, CODE_K);
-	uint16_t *p_lead;
 
 	matrix *syndrome_by_hash = newMatrix(1, CODE_N - CODE_K);
 	matrix *syndrome_by_e	 = newMatrix(1, CODE_N - CODE_K);
@@ -69,8 +45,7 @@ crypto_sign_open(unsigned char *m, unsigned long long *mlen,
 	importMatrix(syndrome_by_hash, syndrome);
 
 	//import public key
-	import_pk(pk, H_info, &p_lead);
-	build_public_mtx(H_pub, H_info, p_lead);
+	import_pk(pk, H_pub);
 
 	vector_mtx_product(syndrome_by_e, H_pub, errorMtx);
 
@@ -83,7 +58,6 @@ crypto_sign_open(unsigned char *m, unsigned long long *mlen,
 
 	deleteMatrix(errorMtx);
 	deleteMatrix(H_pub);
-	deleteMatrix(H_info);
 
 	deleteMatrix(syndrome_by_hash);
 	deleteMatrix(syndrome_by_e);
