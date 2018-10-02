@@ -28,8 +28,10 @@ void deleteMatrix(matrix* A)
 int product(matrix * mtx1, matrix * mtx2, matrix * prod) {
 	int row, col, k;
 	int val;
-	for (col = 0; col < mtx2->cols; col++)
-		for (row = 0; row < mtx1->rows; row++) {
+	if(mtx1->cols != mtx2->rows) 	return -1;
+	
+	for (row = 0; row < mtx1->rows; row++)
+		for (col = 0; col < mtx2->cols; col++) {
 			val = 0;
 			for (k = 0; k < mtx1->cols; k++)
 				val ^= getElement(mtx1, row, k) & getElement(mtx2, k, col);

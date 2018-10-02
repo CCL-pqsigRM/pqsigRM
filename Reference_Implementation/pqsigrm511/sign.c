@@ -15,7 +15,10 @@ matrix* syndromeForMsg(matrix* scrambled_synd_mtx, matrix *Sinv, matrix *synd_mt
 	, const unsigned char *m, unsigned long long mlen, unsigned long long sign_i)
 {
 	hashMsg(synd_mtx->elem, m, mlen, sign_i);
-
+	for (int i = 0; i < synd_mtx->alloc_size; ++i)
+	{
+		printf("%02x", synd_mtx->elem[i]);
+	}printf("\n");
 	vector_mtx_product(scrambled_synd_mtx, Sinv, synd_mtx);
 	return scrambled_synd_mtx;
 }
@@ -88,13 +91,10 @@ crypto_sign(unsigned char *sm, unsigned long long *smlen,
 	for(i=0; i<CODE_N; i++){
 		setElement(sign, 0, i, (yr[Q[i]] != yc[Q[i]]));
 	}
+
 	/*for (int i = 0; i < CODE_N; ++i)
 	{
-		printf("%d, ", Q[i]);
-	}printf("\n");*/
-	/*for (int i = 0; i < CODE_N; ++i)
-	{
-		printf("%d",getElement(sign,0,i));
+		printf("%d", getElement(sign, 0, i));
 	}printf("\n");*/
 	// export message
 	// sing is (mlen, M, e, sign_i)

@@ -8,7 +8,7 @@ void import_signed_msg(matrix *errorMtx, unsigned long long *sign_i, const unsig
 
 
 void import_pk(const unsigned char *pk, matrix *H_pub){
-	memcpy(H_pub->elem, pk, H_pub->alloc_size);
+	importMatrix(H_pub, pk);
 }
 
 int
@@ -39,14 +39,17 @@ crypto_sign_open(unsigned char *m, unsigned long long *mlen,
 		return VERIF_REJECT;
 	}
 
-	unsigned char syndrome[SYNDROMESIZEBYTES]; 
-	hashMsg(syndrome, m_rx, mlen_rx, sign_i);
-
-	importMatrix(syndrome_by_hash, syndrome);
-
+	hashMsg(syndrome_by_hash->elem, m_rx, mlen_rx, sign_i);
+	for (int i = 0; i < syndrome_by_hash->alloc_size; ++i)
+	{
+		printf("%02x", syndrome_by_hash->elem[i]);
+	}printf("\n");
 	//import public key
 	import_pk(pk, H_pub);
-
+	/*for (int i = 0; i < CODE_N; ++i)
+	{
+		printf("%d", getElement(errorMtx, 0, i));
+	}printf("\n");*/
 	vector_mtx_product(syndrome_by_e, H_pub, errorMtx);
 
 	for(i=0; i<CODE_N-CODE_K; ++i)
