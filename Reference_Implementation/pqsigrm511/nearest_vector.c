@@ -6,7 +6,7 @@ void recursive_decoding_mod(float* y, const  int r1, const int m1,
 	int i;
 	if (r1 == 0) {
 		//Calculate Euclidean distance
-		int a1 = 0,a2 = 0;
+		float a1 = 0,a2 = 0;
 	
 		for ( i = f; i < l; i++) {
 			a1 += pow(y[i] - 1,2); a2 += pow(y[i] + 1,2);
