@@ -1,6 +1,6 @@
 // parm.h 
 // 
-// This header includes parameters for pqsigRM-6-12
+// This header includes parameters for pqsigRM-5-11
 // 
 #ifndef __PARM_H
 #define __PARM_H
@@ -11,18 +11,13 @@
 #define CODE_K 4096
 #define CODE_N 8192
 
-#define WEIGHT_PUB 1463 
+#define WEIGHT_PUB 1367 
 #define HASHSIZEBYTES 64
 
-#define NUMOFPUNCTURE 8 
+#define PARM_P 561
 
-#define PUBLIC_H_INFO_BYTES ((CODE_N-CODE_K)*(CODE_N-CODE_K)/8)
-
-#define SECRET_SINV_BYTES ((CODE_N-CODE_K)*(CODE_N-CODE_K)/8)
-#define SECTER_QINV_BYTES (2*CODE_N)
-
-#define ERRORSIZEBYTES (CODE_N/8)
-#define SYNDROMESIZEBYTES 512
+#define ERRORSIZEBYTES 8192/8 
+#define SYNDROMESIZEBYTES 4096/8 
 
 #define SIGN_FAILURE -1
 #define VERIF_REJECT -1
