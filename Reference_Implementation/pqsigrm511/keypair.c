@@ -20,7 +20,7 @@ void export_sk(unsigned char *sk, matrix *Sinv, uint16_t *Q,
 }
 
 void export_pk(unsigned char *pk, matrix *H_pub){
-	exportMatrix(pk 			 , H_pub);
+	exportMatrix(pk, H_pub);
 }
 
 int
@@ -57,9 +57,8 @@ crypto_sign_keypair(unsigned char *pk, unsigned char *sk){
 	// Generate a Scrambling matrix and its inverse. 
 	do{
 		randombytes(S->elem, S->alloc_size);
-	}while(inverse(S, Sinv)== INV_SUCCESS);
-	
-
+	}while(inverse(S, Sinv) != INV_SUCCESS);
+		
 	permutation_gen(Q, CODE_N);
 
 	col_permute(H_M, 0, CODE_N-CODE_K, 0, CODE_N, Q);

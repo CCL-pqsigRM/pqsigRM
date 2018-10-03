@@ -1,7 +1,6 @@
 #include "api.h"
 #include "common.h"
 #include "nearest_vector.h"
-// #define SEEDEXPANDER_MAX_LEN 0xfffffffe // 2^32-1
 
 int wgt(float *yc, float *yr)
 {
@@ -15,10 +14,6 @@ matrix* syndromeForMsg(matrix* scrambled_synd_mtx, matrix *Sinv, matrix *synd_mt
 	, const unsigned char *m, unsigned long long mlen, unsigned long long sign_i)
 {
 	hashMsg(synd_mtx->elem, m, mlen, sign_i);
-	for (int i = 0; i < synd_mtx->alloc_size; ++i)
-	{
-		printf("%02x", synd_mtx->elem[i]);
-	}printf("\n");
 	vector_mtx_product(scrambled_synd_mtx, Sinv, synd_mtx);
 	return scrambled_synd_mtx;
 }
@@ -82,20 +77,14 @@ crypto_sign(unsigned char *sm, unsigned long long *smlen,
 		recursive_decoding_mod(yc, RM_R, RM_M, 0, CODE_N, part_perm1, part_perm2);
 		
 		// Check Hamming weight of e'
-/*		printf("%d\n", wgt(yr, yc));
-*/		if(wgt(yr, yc) <= WEIGHT_PUB) break;
+		if(wgt(yr, yc) <= WEIGHT_PUB) break;
 	}
 	// compute Qinv*e'
 	matrix *sign = newMatrix(1, CODE_N);
-	
 	for(i=0; i<CODE_N; i++){
 		setElement(sign, 0, i, (yr[Q[i]] != yc[Q[i]]));
 	}
 
-	/*for (int i = 0; i < CODE_N; ++i)
-	{
-		printf("%d", getElement(sign, 0, i));
-	}printf("\n");*/
 	// export message
 	// sing is (mlen, M, e, sign_i)
 	// M includes its length, i.e., mlen
@@ -111,6 +100,5 @@ crypto_sign(unsigned char *sm, unsigned long long *smlen,
 	deleteMatrix(Sinv);
 	deleteMatrix(synd_mtx);	deleteMatrix(scrambled_synd_mtx);
 	free(yr); free(yc);
-	// free(ctx);
 	return 0;	
 }

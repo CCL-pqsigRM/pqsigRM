@@ -133,29 +133,30 @@ int inverse(matrix *mtx, matrix *mtxInv){
 	for(r = 0; r< mtxInv->alloc_size;++r){
 		mtxInv->elem[r] = 0;
 	}
-	for ( r = 0; r <  mtx->rows; ++r)
+	for ( r = 0; r <  mtxInv->rows; ++r)
 	{
 		setElement(mtxInv, r, r, 1);
 	}
 
-	for (c = 0; c < mtx->cols; ++c)
+	for (c = 0; c < temp->cols; ++c)
 	{
 		if(getElement(temp, c, c) == 0)
-		{
+		{	
 			for (r = c+1; r < mtx->rows; ++r)
 			{
-				if(getElement(temp, r, c) == 1){
+				if(getElement(temp, r, c) != 0){
 					rowInterchanging(temp, r, c);
 					rowInterchanging(mtxInv, r, c);
 					break;
 				}
 			}
-			if(r >= mtx->rows) 		return INV_FAIL;
+			if(r >= temp->rows) 		return INV_FAIL;
 		}
 		
 
-		for(r = 0; r < mtx->rows; r++){
-			if(getElement(temp, r, c) == 1 && r != c){
+		for(r = 0; r < temp->rows; r++){
+			if(r == c) continue;
+			if(getElement(temp, r, c) != 0){
 				rowAddition(temp, r, c);
 				rowAddition(mtxInv, r, c);
 			}

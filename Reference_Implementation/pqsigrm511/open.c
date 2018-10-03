@@ -35,21 +35,15 @@ crypto_sign_open(unsigned char *m, unsigned long long *mlen,
 
 	import_signed_msg(errorMtx, &sign_i, sm + sizeof(unsigned long long) + mlen_rx);
 	
-	if(hammingWgt(errorMtx) > WEIGHT_PUB) {
+	if(hammingWgt(errorMtx) > WEIGHT_PUB) 
 		return VERIF_REJECT;
-	}
+	
 
 	hashMsg(syndrome_by_hash->elem, m_rx, mlen_rx, sign_i);
-	for (int i = 0; i < syndrome_by_hash->alloc_size; ++i)
-	{
-		printf("%02x", syndrome_by_hash->elem[i]);
-	}printf("\n");
+	
 	//import public key
 	import_pk(pk, H_pub);
-	/*for (int i = 0; i < CODE_N; ++i)
-	{
-		printf("%d", getElement(errorMtx, 0, i));
-	}printf("\n");*/
+	
 	vector_mtx_product(syndrome_by_e, H_pub, errorMtx);
 
 	for(i=0; i<CODE_N-CODE_K; ++i)
