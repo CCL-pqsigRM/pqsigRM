@@ -28,8 +28,10 @@ void deleteMatrix(matrix* A)
 int product(matrix * mtx1, matrix * mtx2, matrix * prod) {
 	int row, col, k;
 	int val;
-	for (col = 0; col < mtx2->cols; col++)
-		for (row = 0; row < mtx1->rows; row++) {
+	if(mtx1->cols != mtx2->rows) 	return -1;
+	
+	for (row = 0; row < mtx1->rows; row++)
+		for (col = 0; col < mtx2->cols; col++) {
 			val = 0;
 			for (k = 0; k < mtx1->cols; k++)
 				val ^= getElement(mtx1, row, k) & getElement(mtx2, k, col);
@@ -119,6 +121,51 @@ matrix * rref(matrix* A)
 	return A;
 }
 
+int inverse(matrix *mtx, matrix *mtxInv){
+	if(mtx->rows != mtx->cols) 			return INV_FAIL;
+	if(mtxInv->rows != mtxInv->cols) 	return INV_FAIL;
+	if(mtx->rows != mtxInv->rows) 		return INV_FAIL;
+
+	matrix* temp = newMatrix(mtx->rows, mtx->cols);
+	matrixcpy(temp, mtx);
+
+	int r, c;
+	for(r = 0; r< mtxInv->alloc_size;++r){
+		mtxInv->elem[r] = 0;
+	}
+	for ( r = 0; r <  mtxInv->rows; ++r)
+	{
+		setElement(mtxInv, r, r, 1);
+	}
+
+	for (c = 0; c < temp->cols; ++c)
+	{
+		if(getElement(temp, c, c) == 0)
+		{	
+			for (r = c+1; r < mtx->rows; ++r)
+			{
+				if(getElement(temp, r, c) != 0){
+					rowInterchanging(temp, r, c);
+					rowInterchanging(mtxInv, r, c);
+					break;
+				}
+			}
+			if(r >= temp->rows) 		return INV_FAIL;
+		}
+		
+
+		for(r = 0; r < temp->rows; r++){
+			if(r == c) continue;
+			if(getElement(temp, r, c) != 0){
+				rowAddition(temp, r, c);
+				rowAddition(mtxInv, r, c);
+			}
+		}
+	}
+	deleteMatrix(temp);
+	return INV_SUCCESS;
+}
+
 matrix * rref_prio(matrix* A, int* col_prio, uint16_t *lead)
 {
 	// Considering column is longer than row
@@ -200,7 +247,7 @@ int add(matrix *m1, matrix *m2, matrix *res){
 	return 0;
 }
 
-void getLeadingCoeff(matrix* mtx, uint16_t *lead, uint16_t *lead_diff){
+void getPivot(matrix* mtx, uint16_t *lead, uint16_t *lead_diff){
 	int row=0, col=0;
 	int lead_idx=0, diff_idx=0;
 	while((col < mtx->cols) && (row < mtx->rows) && (lead_idx < mtx->rows) && (diff_idx < (mtx->cols - mtx->rows))){
@@ -218,6 +265,7 @@ void getLeadingCoeff(matrix* mtx, uint16_t *lead, uint16_t *lead_diff){
 		lead_diff[diff_idx++]=col++;
 	}
 }
+
 void dual(matrix* G, matrix* H_sys, uint16_t *lead, uint16_t *lead_diff){
 	int row, col, flg = 0; 
 	rref(G);
@@ -226,7 +274,7 @@ void dual(matrix* G, matrix* H_sys, uint16_t *lead, uint16_t *lead_diff){
 		lead_diff = (uint16_t*)malloc(sizeof(uint16_t)*(G->cols - G->rows));	
 		flg = 1;
 	}
-	getLeadingCoeff(G, lead, lead_diff);
+	getPivot(G, lead, lead_diff);
 	// Fill not-identity part (P')
 	for ( row = 0; row < H_sys->rows; row++) 
 		for ( col = 0; col < G->rows; col++) 

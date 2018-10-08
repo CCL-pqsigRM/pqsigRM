@@ -4,12 +4,12 @@
 #ifndef api_h
 #define api_h
 
-#define CRYPTO_PUBLICKEYBYTES (4096*8192)/8
-#define CRYPTO_SECRETKEYBYTES (4096*4096+8192*16+2048*16+2048*16+4096*16)/8 
+#define CRYPTO_PUBLICKEYBYTES (1024*2048)/8
+#define CRYPTO_SECRETKEYBYTES (1024*1024+2048*16+512*16+512*16+1024*16)/8 
 
-#define CRYPTO_BYTES (64+8192+64)/8 
+#define CRYPTO_BYTES (64+2048+64)/8 
 
-#define CRYPTO_ALGNAME "pqsigRM-6-13"
+#define CRYPTO_ALGNAME "pqsigRM-5-11"
 
 int
 crypto_sign_keypair(unsigned char *pk, unsigned char *sk);

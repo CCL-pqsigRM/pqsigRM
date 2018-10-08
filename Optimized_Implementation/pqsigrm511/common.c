@@ -6,13 +6,13 @@ unsigned char* hashMsg(unsigned char *s, const unsigned char *m,
 	// Hash the given message
 	// syndrome s = h(h(M)|i) | (h(h(M)|i)) | ...
 
+	*(unsigned long long*)(s+HASHSIZEBYTES) = sign_i;
+	// concatenate i i.e. h(M)|i
+	
 	SHA512(m, mlen, s);
-	*(unsigned long long*)(s+HASHSIZEBYTES) = sign_i;// concatenate i i.e. h(M)|i
 	SHA512(s, HASHSIZEBYTES+sizeof(unsigned long long), s); //h(h(M)|i)
 	
-	size_t idx;
-	for(idx=1; idx < 8; ++idx)
-		SHA512(s+HASHSIZEBYTES*(idx-1), HASHSIZEBYTES, s+HASHSIZEBYTES*idx);//(h(h(M)|i))
+	SHA512(s, HASHSIZEBYTES, s+HASHSIZEBYTES);//(h(h(M)|i))
 	
 	return s;
 }
