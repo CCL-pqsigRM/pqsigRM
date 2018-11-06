@@ -5,7 +5,7 @@ unsigned char* hashMsg(unsigned char *s, const unsigned char *m,
 	unsigned long long mlen, unsigned long long sign_i){
 	// Hash the given message
 	// syndrome s = h(h(M)|i) | (h(h(M)|i)) | ...
-	char* stemp = (char*)malloc(HASHSIZEBYTES*4);
+	unsigned char* stemp = (unsigned char*)malloc(HASHSIZEBYTES*4);
 
 	SHA512(m, mlen, stemp);
 	*(unsigned long long*)(stemp+HASHSIZEBYTES) = sign_i;// concatenate i i.e. h(M)|i
@@ -36,7 +36,7 @@ void swap16(uint16_t *Q, const int i, const int j){
 }
 
 void permutation_gen(uint16_t *Q, int len){
-	int i,j; 
+	int i; 
 	for(i=0; i<len; i++)
 		Q[i] = i;
 	for(i=0; i<len; i++)
