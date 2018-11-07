@@ -3,7 +3,7 @@ pqsigRM v1.11
 
 This package includes supporting documents, reference implementation, optimized implementation, and KAT for pqsigRM.
 This reference implementation and optimized implementation are the implementation of a post-quantum digital signature algorithm, pqsigRM.
-The source code is tested under intel x64 cpu, ubuntu 16.04
+The source code is tested under x64 cpu, ubuntu 16.04
 There are three variants of pqsigRM.
 
 You can find KAT(Known Answer Tests) [here](https://1drv.ms/f/s!AhBZmnuD2ssygtcf8G3izibzY4Ydmg).
@@ -30,13 +30,13 @@ Put your own main file in directory pqsigrm**
 
 # PERFORMANCE ANALYSIS 
 
-The following measurements are CPU cycles for run pqsigRM-4-12, pqsigRM-6-12, pqsigRM-6-13 at Intel(R) Core(R) CPU i7-6700k 4.00GHz. The measurements are given in Table below.
+The following measurements are CPU cycles for run pqsigRM-5-11, pqsigRM-6-12, pqsigRM-6-13 at AMD Ryzen Threadripper 1950X 3.4GHz. The measurements are given in Table below.
 
-|              | security | key generation | singing    | verification |
-|--------------|----------|----------------|------------|--------------|
-| pqsigRM-4-12 | category1| 1741390245	   | 3066081149 | 33803704 	   |
-| pqsigRM-6-12 | category3| 9677015223     | i408039647 | 144846274    |
-| pqsigRM-6-13 | category5| 76855751128    | 166601581  | 776433235    |
+|              | security  | key generation | singing    | verification |
+|--------------|-----------|----------------|------------|--------------|
+| pqsigRM-5-11 | category 1| 36939368279	  | 11397250   | 2235511 	    |
+| pqsigRM-6-12 | category 3| 174485898177   | 15066562   | 6825856      |
+| pqsigRM-6-13 | category 5| 193999561963   | 113986015  | 36648774     |
 
 # DOCUMENTATION
 
@@ -51,64 +51,4 @@ A digital signature algorithm with 198-bit security (Category 3)
 A digital signature algorithm with 256-bit security (Category 5)
 
 * * *
-
-*/Reference_Implementation* & */Optimized_Implementation*  
-- */pqsigrm511*  
-  - */api.h*					key sizes and algorithm name are defined here  
-  - */keypair.c* 			crypto_sign_keypair() is defined here  
-  - */sign.c* 				crypto_sign() is defined here  
-  - */open.c* 				crypto_sign_open() is defined here  
-  - */parm.h* 				basic parameters for pqsigRM- 5- 11  
-  - */common.h* 				common variables and functions for signing and verifications   
-  - */common.c*  
-  - */matrix.h* 				basic matrix operations for pqsigRM.  
-  - */matrix.c* 				modified mat.c and matrix.h in mceliece implementation in supercop- 20171020  
-  - */nearest_vector.c* 		RM code decoder  
-  - */nearest_vector.h*  
-  - */parity_check.pqsigrm*	Information of reduced echelon form of the parity check matrix of RM(5, 11), not key, publicly known value  
-  - */lead_diff.pqsigrm* 		difference set of the leading coefficient of the generator matrix of RM(5, 11) in reduced echelon form  
-  - */rm.c, rm.h*			code for RM code generatorm matrix and partiall permutation on it.
-  - */rng.h* 					random number generator published by NIST	  
-  - */rng.c*  
-- */pqsigrm612*  
-  - */api.h*					key sizes and algorithm name are defined here  
-  - */keypair.c* 				crypto_sign_keypair() is defined here   
-  - */sign.c* 				crypto_sign() is defined here  
-  - */open.c* 				crypto_sign_open() is defined here  
-  - */parm.h* 				basic parameters for pqsigRM-6-12  
-  - */common.h* 				common variables and functions for signing and verifications   
-  - */common.c*  
-  - */matrix.h* 				basic matrix operations for pqsigRM  
-  - */matrix.c* 				modified mat.c and matrix.h in mceliece implementation in supercop- 20171020  
-  - */nearest_vector.c* 		RM code decoder  
-  - */nearest_vector.h*  
-  - */parity_check.pqsigrm* 	Information of reduced echelon form of the parity check matrix of RM(6,12), not key, publicly known value  
-  - */lead_diff.pqsigrm* 		difference set of the leading coefficient of the generator matrix of RM(6,12) in reduced echelon form  
-  - */rm.c, rm.h*			code for RM code generatorm matrix and partiall permutation on it.
-  - */rng.h* 					random number generator published by NIST	  
-  - */rng.c*  
-- */pqsigrm613*  
-  - */api.h*					key sizes and algorithm name are defined here  
-  - */keypair.c* 				crypto_sign_keypair() is defined here  
-  - */sign.c* 				crypto_sign() is defined here
-  - */open.c* 				crypto_sign_open() is defined here  
-  - */parm.h* 				basic parameters for pqsigRM-6-13
-  - */common.h* 				common variables and functions for signing and verifications   
-  - */common.c*  
-  - */matrix.h* 				basic matrix operations for pqsigRM  
-  - */matrix.c* 				modified mat.c and matrix.h in mceliece implementation in supercop- 20171020  
-  - */nearest_vector.c* 		RM code decoder  
-  - */nearest_vector.h*  
-  - */parity_check.pqsigrm* 	Information of reduced echelon form of the parity check matrix of RM(6,13), not key, publicly known value  
-  - */lead_diff.pqsigrm* 		difference set of the leading coefficient of the generator matrix of RM(6,13) in reduced echelon form  
-  - */rm.c, rm.h*			code for RM code generatorm matrix and partiall permutation on it.
-  - */rng.h* 					random number generator published by NIST	  
-  - */rng.c*  
-  
-*/KAT*  
-- */pqsigrm511* 				Known Answer Test for pqsigRM-5-11  
-- */pqsigrm612* 				Known Answer Test for pqsigRM-6-12  
-- */pqsigrm613* 				Known Answer Test for pqsigRM-6-13
-
-*/Supporting_Documentation* 		Supporting documentation for pqsigRM
 
