@@ -46,14 +46,12 @@ crypto_sign_keypair(unsigned char *pk, unsigned char *sk){
 	matrix *H_M = newMatrix(CODE_N-CODE_K, CODE_N);
 	matrix *H_pub = newMatrix(CODE_N - CODE_K, CODE_N);
 
-/*	matrix *S = newMatrix(CODE_N-CODE_K, CODE_N-CODE_K);
-*/	matrix *Sinv = newMatrix(CODE_N - CODE_K, CODE_N - CODE_K);
+	matrix *S = newMatrix(CODE_N-CODE_K, CODE_N-CODE_K);
+	matrix *Sinv = newMatrix(CODE_N - CODE_K, CODE_N - CODE_K);
 
 	uint16_t *s_lead = (uint16_t*)malloc(sizeof(uint16_t)*(CODE_N-CODE_K));
 	uint16_t *s_diff = (uint16_t*)malloc(sizeof(uint16_t)*CODE_K);
 
-	uint16_t *p_lead = (uint16_t*)malloc(sizeof(uint16_t)*(CODE_N-CODE_K));
-	uint16_t *p_diff = (uint16_t*)malloc(sizeof(uint16_t)*CODE_K);
 
 	// generate secret parital permutations
 	partial_permutation_gen(part_perm1);
@@ -69,19 +67,18 @@ crypto_sign_keypair(unsigned char *pk, unsigned char *sk){
 
 
 	// Generate a Scrambling matrix and its inverse. 
-	/*do{
+	do{
 		randombytes(S->elem, S->alloc_size);
-	}while(inverse(S, Sinv) != INV_SUCCESS);*/
-		
+	}while(isNonsingular(S) != INV_SUCCESS);
+	inverse(S, Sinv);
+
 	permutation_gen(Q, CODE_N);
 
 	col_permute(H_M, 0, CODE_N-CODE_K, 0, CODE_N, Q);
 	
 	matrixcpy(H_pub, H_M);
-	rref(H_pub); getPivot(H_pub, p_lead, p_diff);
-	copy_columns(Sinv, H_M, p_lead);
-	/*	product(S, H_M, H_pub);
-*/
+	product(S, H_M, H_pub);
+
 	export_sk(sk, Sinv, Q, part_perm1, part_perm2, s_lead);
 	export_pk(pk, H_pub);
 
@@ -90,6 +87,6 @@ crypto_sign_keypair(unsigned char *pk, unsigned char *sk){
 	deleteMatrix(H_M); deleteMatrix(H_pub); 
 	deleteMatrix(Sinv);/* deleteMatrix(S);*/
 	free(s_lead);free(s_diff); 
-	free(p_lead); free(p_diff);
+
 	return 0;
 }

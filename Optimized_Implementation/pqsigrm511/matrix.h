@@ -31,6 +31,7 @@ void deleteMatrix(matrix * mtx) ;
 matrix* rref(matrix* mtx);
 matrix* transpose(matrix *dest, matrix *src);
 int inverse(matrix *mtx, matrix *mtxInv);
+int isNonsingular(matrix *mtx);
 
 void getPivot(matrix* mtx, uint16_t *lead, uint16_t *lead_diff);
 
@@ -44,7 +45,6 @@ int exportMatrix(unsigned char* dest, matrix* mtx);
 matrix* importMatrix(matrix* dest_mtx, const unsigned char* src);
 
 void dual(matrix* G, matrix* H_sys, uint16_t *lead, uint16_t *lead_diff);
-matrix * rref_prio(matrix* mtx, int* col_prio, uint16_t *lead);
 void rowInterchanging(matrix* mtx, int row_idx1, int row_idx2);
 void mtxcpy(matrix* dest, const int r1, const int c1,const int r2, const int c2, matrix* src, const int r3, const int c3);
 #endif

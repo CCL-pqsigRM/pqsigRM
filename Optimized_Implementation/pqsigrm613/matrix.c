@@ -166,47 +166,40 @@ int inverse(matrix *mtx, matrix *mtxInv){
 	return INV_SUCCESS;
 }
 
-matrix * rref_prio(matrix* A, int* col_prio, uint16_t *lead)
-{
-	// Considering column is longer than row
-	int succ_row_idx=0;
-	int col_idx, row_idx=0;
-	int i;
-	for (col_idx = 0; col_idx < (A->cols); ++col_idx) {
-		
-		// finding first row s.t. i th elem of the row is 1
-		for(; row_idx < A->rows; ++row_idx)
-			if(getElement(A, row_idx, col_prio[col_idx]) == 1) 
-				break;
-		// When reaches the last row,
-		// increase column index and search again
-		if (row_idx == A->rows){ 
-			row_idx=succ_row_idx;
-			continue;
-		}
-		// if row_idx is not succ_row_idx, 
-		// interchange between:
-		// <succ_row_idx> th row <-> <row_idx> th row
-		if(row_idx != succ_row_idx){
-			rowInterchanging(A, succ_row_idx, row_idx);
-		}
-		
-		// By adding <succ_row_idx> th row in the other rows 
-		// s.t. A(i, <succ_row_idx>) == 1,
-		// making previous columns as element row.
-		for(i=0; i<A->rows; ++i){
-			if(i == succ_row_idx) continue;
+int isNonsingular(matrix *mtx){
 
-			if(getElement(A, i, col_prio[col_idx]) == 1){
-				rowAddition(A, i, succ_row_idx);
+	matrix* temp = newMatrix(mtx->rows, mtx->cols);
+	matrixcpy(temp, mtx);
+
+	int r, c;
+	unsigned char bit_one =	0x80;
+
+	for (c = 0; c < temp->cols; ++c)
+	{
+		if(getElement(temp, c, c) == 0)
+		{	
+			for (r = c+1; r < mtx->rows; ++r)
+			{
+				if(getElement(temp, r, c) != 0){
+					rowInterchanging(temp, r, c);
+					break;
+				}
+			}
+			if(r >= temp->rows) 		return INV_FAIL;
+		}
+		
+
+		for(r = 0; r < temp->rows; r++){
+			if(r == c) continue;
+			if(getElement(temp, r, c) != 0){
+				rowAddition(temp, r, c);
 			}
 		}
-		lead[succ_row_idx] = col_prio[col_idx];
-		row_idx = ++succ_row_idx;
 	}
-	//Gaussian elimination is finished. So return A.
-	return A;
+	deleteMatrix(temp);
+	return INV_SUCCESS;
 }
+
 
 matrix* matrixcpy(matrix* dest, matrix* src){
 	if(dest->rows != src->rows || dest->cols!=src->cols) return MATRIX_NULL;
