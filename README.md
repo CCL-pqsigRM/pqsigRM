@@ -6,7 +6,7 @@ This reference implementation and optimized implementation are the implementatio
 The source code is tested under x64 cpu, ubuntu 16.04
 There are three variants of pqsigRM.
 
-You can find KAT(Known Answer Tests) [here](https://1drv.ms/f/s!AhBZmnuD2ssygtcf8G3izibzY4Ydmg).
+You can find KAT(Known Answer Tests) [here](https://www.google.com/url?q=https%3A%2F%2Fmysnu-my.sharepoint.com%2F%3Af%3A%2Fg%2Fpersonal%2Fyongwool_seoul_ac_kr%2FEtLLefDJab5MqZadPydyvMwB55L13vKODHUPD8pS3UCm8Q&sa=D&sntz=1&usg=AFQjCNGFSprr7bPDZ6bDUQjbA2M9ZxrhQw).
 
 Our website is <https://sites.google.com/view/pqsigrm>
 
