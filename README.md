@@ -34,9 +34,9 @@ The following measurements are CPU cycles for run pqsigRM-5-11, pqsigRM-6-12, pq
 
 |              | security  | key generation | singing    | verification |
 |--------------|-----------|----------------|------------|--------------|
-| pqsigRM-5-11 | category 1| 36939368279	  | 11397250   | 2235511 	    |
+| pqsigRM-5-11 | category 1| 36939368279	| 11397250   | 2235511 	    |
 | pqsigRM-6-12 | category 3| 174485898177   | 15066562   | 6825856      |
-| pqsigRM-6-13 | category 5| 193999561963   | 113986015  | 36648774     |
+| pqsigRM-6-13 | category 5| 2406221215789  | 102879688  | 36915068     |
 
 # DOCUMENTATION
 
